@@ -13,9 +13,9 @@ meh, look at the source.
 
 or try:
 
-    % python letterpress.py games 100 abc foo foo
+    % python letterpress.py game foo foo
 
-(this plays 100 games between foo.py and foo.py using seed 'abc')
+(this plays a game between foo.py and foo.py)
 ''')
 
 class Ref :
@@ -52,6 +52,25 @@ def main(argv) :
 
     elif 'help' == c :
         help()
+        sys.exit()
+
+    elif 'game' == c :
+        seed = ""
+        if 5 == len(argv) :
+            seed = argv[4]
+        if 0 == len(seed) :
+            seed = int(time.time() * 100)
+        logging.info('making player "%s" as player 1 ...' % argv[2])
+        p1 = make_player(argv[2])
+        logging.info('making player "%s" as player 2 ...' % argv[3])
+        p2 = make_player(argv[3])
+        logging.info('setting up random number generator with seed "%s" ...' % seed)
+        rng = random.Random(seed)
+        logging.info('creating referree ...')
+        ref = Ref(rng,p1,p2)
+        logging.info('playing game ...')
+        r = ref.play_game()
+        logging.info('RESULT\t%d' % r)
         sys.exit()
 
     elif 'games' == c :
