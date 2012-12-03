@@ -1,4 +1,4 @@
-# threes.py -- a dumb letterpress algo, always plays common three letter words
+# algo_all_threes.py -- a dumb letterpress algo, always plays common three letter words
 
 COMMON_THREE_LETTER_WORDS = [
     'all', 'and', 'any', 'are', 'boy', 'but', 'can', 'dad', 'day', 
@@ -11,7 +11,7 @@ COMMON_THREE_LETTER_WORDS = [
 
 import random
 
-def get_play(tiles,colors,moves) :
+def get_move(tiles,colors,moves) :
     '''
     return a random three letter word if it can find it. sometimes returns None,
     sometimes returns a word not in sowpods, sometimes returns an unplayable word
@@ -28,7 +28,7 @@ if __name__ == '__main__' :
         t = ''
         for j in range(25) :
             t += random.choice('abcdefghijklmnopqrstuvwxyz')
-        p = get_play(t,None,None)
+        p = get_move(t,None,None)
         if None == p :
             w = None
         else :
