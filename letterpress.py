@@ -120,9 +120,11 @@ def play_game(rng,player_1,player_2) :
         #
         for i in moves :
             if word == ''.join(map(lambda x : tiles[x],i[:len(word)])) :
-                logging.info('player %d played word (%s) already played (%s), ...' % (whose_move,word,i))
+                logging.info('player %d played word (%s) already played (%s), disqualifying ...' % (whose_move,word,i))
                 disqualified = whose_move
                 break
+        if None != disqualified :
+            break
 
         # looks good, let's play it
         #
@@ -179,7 +181,7 @@ def play_game(rng,player_1,player_2) :
     elif points[1] > points[2] :
         logging.info('player 1 wins')
         return 1   
-    elif points[2] == points[1] :
+    elif points[2] > points[1] :
         logging.info('player 2 wins')
         return 2
     else :

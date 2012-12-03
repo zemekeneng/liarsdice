@@ -25,6 +25,8 @@ def get_move(tiles,colors,moves) :
     '''
     for i in range(25 * 25) :
         p = (random.randint(0,24),random.randint(0,24),)
+        if p[0] == p[1] :
+            continue
         if ''.join(map(lambda x : tiles[x],p)) in ALL_TWO_LETTER_WORDS :
             return p
     return None
