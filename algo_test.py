@@ -76,6 +76,6 @@ def get_move_RENAME_ME(tiles,moves,colors) :
     global g_game
     if tiles != g_game[0] :
         g_game = (tiles,MyPlayer(tiles))
-    move = g_game.get_move(moves,colors)
+    move = g_game[1].get_move(moves,colors)
     return move
 
