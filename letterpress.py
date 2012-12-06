@@ -29,11 +29,11 @@ def word_in_sowpods(word) :
     global g_sowpods
     if None == g_sowpods :
         g_sowpods = {}
-    for i in file('sowpods.txt').readlines() :
-        g_sowpods[i[:-1]] = 1
+        for i in file('sowpods.txt').readlines() :
+            g_sowpods[i[:-1]] = 1
     return word in g_sowpods
 
-def play_game(rng,player_1,player_2) :
+def play_game(tiles,player_1,player_2,debug) :
 
     # set up the game
     #
@@ -43,9 +43,6 @@ def play_game(rng,player_1,player_2) :
         colors.append(0)
     clocks = [0.0,0.0]
     whose_move = 1
-    tiles = ''
-    for i in range(25) :
-        tiles += random.choice('abcdefghijklmnopqrstuvwxyz')
     logging.info('tiles: %s' % tiles)
 
     # put the players in a tuple so we can flip back and forth 
@@ -61,13 +58,15 @@ def play_game(rng,player_1,player_2) :
         # get the player's move
         #
         started = time.time()
-        try :
+        if debug :
             move = players[whose_move - 1](tiles[:],moves[:],colors[:])
-            logging.info('player %d returned %s' % (whose_move,str(move)))
-        except :
-            logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move,str(sys.exc_info()[:2])))
-            disqualified = whose_move
-            break
+        else :
+            try :
+                move = players[whose_move - 1](tiles[:],moves[:],colors[:])
+            except :
+                logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move,str(sys.exc_info()[:2])))
+                disqualified = whose_move
+                break
 
         # did they take too long?
         #
@@ -102,10 +101,9 @@ def play_game(rng,player_1,player_2) :
                 used[i] = 1
                 word += tiles[i]
         except :
-            logging.info('player %d returned an illegal move: %s, disqualifying ...' % (whose_move,str(play)))
+            logging.info('player %d returned an illegal move: %s, disqualifying ...' % (whose_move,str(move)))
             disqualified = whose_move
             break
-
         if None != disqualified :
             break
 
@@ -119,6 +117,8 @@ def play_game(rng,player_1,player_2) :
         # already been played?
         #
         for i in moves :
+            if None == i :
+                continue
             if word == ''.join(map(lambda x : tiles[x],i[:len(word)])) :
                 logging.info('player %d played word (%s) already played (%s), disqualifying ...' % (whose_move,word,i))
                 disqualified = whose_move
@@ -156,6 +156,17 @@ def play_game(rng,player_1,player_2) :
         for i in new_colors :
             colors[i] = whose_move 
 
+        # is the board filled in?
+        #
+        if 0 != len(new_colors) :
+            flag = 1
+            for i in colors :
+                if 0 == i :
+                    flag = 0
+                    break
+            if flag :
+                break
+
         # flip whose_move and continue
         #
         whose_move = {1:2,2:1}[whose_move]
@@ -188,6 +199,12 @@ def play_game(rng,player_1,player_2) :
         logging.info('tie game')
         return 0
 
+def generate_tiles(rng):
+    tiles = ''
+    for i in range(25) :
+        tiles += random.choice('abcdefghijklmnopqrstuvwxyz')
+    return tiles
+
 def make_player(s) :
     try :
         m = __import__(s)
@@ -212,7 +229,8 @@ def tournament(n,seed,player_names) :
                 if p1 == p2 :
                     continue
                 logging.info('playing game between %s and %s ...' % (p1,p2))
-                result = play_game(rng,players[p1],players[p2])
+                tiles = generate_tiles(rng)
+                result = play_game(tiles,players[p1],players[p2],False)
                 if not results.has_key((p1,p2)) :
                     results[(p1,p2)] = []
                 results[(p1,p2)].append(result)
@@ -225,7 +243,8 @@ def single_game(seed,player_name_1,player_name_2) :
     logging.info('making player %s ...' % player_name_2)
     p2 = make_player(player_name_1)
     logging.info('playing game between %s and %s ...' % (player_name_1,player_name_2))
-    result = play_game(rng,p1,p2)
+    tiles = generate_tiles(rng)
+    result = play_game(tiles,p1,p2,True)
     if 0 == result :
         logging.info('tie game')
     if 1 == result :
