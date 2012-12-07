@@ -33,6 +33,27 @@ def word_in_sowpods(word) :
             g_sowpods[i[:-1]] = 1
     return word in g_sowpods
 
+def dump_game(tiles,moves,colors) :
+    canvas = []
+    for y in range(5) :
+        board_pic = ''
+        colors_pic = ''
+        for x in range(5) :
+            z = (y * 5) + x
+            board_pic += tiles[z]
+            colors_pic += '.xo'[colors[z]]
+        canvas.append(board_pic + ' ' + colors_pic)
+    for i in canvas :
+        logging.debug(i)
+    m = []
+    for i in moves :
+        if None == i :
+            m.append('PASS')
+        else :
+            m.append(str(i) + ' (' + ''.join(map(lambda x : tiles[x],i)) + ')')
+    t = ', '.join(m)
+    logging.debug(t)
+
 def play_game(tiles,player_1,player_2,debug) :
 
     # set up the game
@@ -54,6 +75,8 @@ def play_game(tiles,player_1,player_2,debug) :
     #
     disqualified = None
     while 1 :
+    
+        dump_game(tiles,moves,colors)
         
         # get the player's move
         #
@@ -171,11 +194,15 @@ def play_game(tiles,player_1,player_2,debug) :
         #
         whose_move = {1:2,2:1}[whose_move]
         continue
+        
+    dump_game(tiles,moves,colors)
 
     # did someone get disqualified?
     #
     if None != disqualified :
-        return {1:2,2:1}[disqualified]
+        winner = {1:2,2:1}[disqualified]
+        logging.info('player %d wins' % winner)
+        return winner
 
     # nope, let's count colors
     #
@@ -234,6 +261,19 @@ def tournament(n,seed,player_names) :
                 if not results.has_key((p1,p2)) :
                     results[(p1,p2)] = []
                 results[(p1,p2)].append(result)
+    scores = {}
+    for i in players :
+        scores[i] = 0
+    for i,j in results.items() :
+        for k in j :
+            if 0 == k :
+                pass
+            elif 1 == k :
+                scores[i[0]] += 1
+            elif 2 == k :
+                scores[i[1]] += 1
+    for i,j in scores.items() :
+        logging.info('SCORE\t%s\t%d' % (i,j))
     return results
 
 def single_game(seed,player_name_1,player_name_2) :
