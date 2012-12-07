@@ -21,6 +21,7 @@ See player_test.py for documentation on how to write a player.
 '''
 
 MAX_TIME_PER_GAME = 60
+SOWPODS_LETTER_FREQ = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeessssssssssssssssssssssssssssssssssssssssssssssssssssssssssiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnooooooooooooooooooooooooooooooooooooooootttttttttttttttttttttttttttttttttttttttlllllllllllllllllllllllllllllllccccccccccccccccccccccccdddddddddddddddddddduuuuuuuuuuuuuuuuuuuuppppppppppppppppppmmmmmmmmmmmmmmmmmgggggggggggggggghhhhhhhhhhhhhhhbbbbbbbbbbbyyyyyyyyyfffffffvvvvvkkkkkwwwwzzxqj'
 
 import sys,logging,os,random,time
 
@@ -229,7 +230,7 @@ def play_game(tiles,player_1,player_2,debug) :
 def generate_tiles(rng):
     tiles = ''
     for i in range(25) :
-        tiles += random.choice('abcdefghijklmnopqrstuvwxyz')
+        tiles += random.choice(SOWPODS_LETTER_FREQ)
     return tiles
 
 def make_player(s) :
