@@ -6,18 +6,18 @@
 #
 
 HELP = '''\
-letterpress.py -- this program pits letterpress algorithms against each other
+letterpress.py -- this program pits letterpress players against each other
 
-Play a game between algo_123.py and algo_common_threes.py:
+Play a game between player_random.py and player_human.py:
 
-    % python letterpress.py game algo_123 algo_common_threes
+    % python letterpress.py game player_random player_human
 
-Plays 100 round robin games between algo_123.py, algo_common_threes.py, and 
-algo_my_algo, using seed "seed".
+Plays 100 round robin games between player_123.py, player_common_threes.py, and 
+player_my_algo, using seed "seed".
 
-    % python letterpress.py tournament 100 seed algo_123 algo_common_threes algo_my_algo
+    % python letterpress.py tournament 100 seed player_123 player_common_threes player_my_algo
 
-See algo_test.py for documentation on how to write a player.
+See player_test.py for documentation on how to write a player.
 '''
 
 MAX_TIME_PER_GAME = 60
