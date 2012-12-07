@@ -281,7 +281,7 @@ def single_game(seed,player_name_1,player_name_2) :
     logging.info('making player %s ...' % player_name_1)
     p1 = make_player(player_name_1)
     logging.info('making player %s ...' % player_name_2)
-    p2 = make_player(player_name_1)
+    p2 = make_player(player_name_2)
     logging.info('playing game between %s and %s ...' % (player_name_1,player_name_2))
     tiles = generate_tiles(rng)
     result = play_game(tiles,p1,p2,True)
