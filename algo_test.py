@@ -12,7 +12,7 @@
 # colors, and return either None (indicating "pass"), or a vector of
 # integer indexes into tiles, representing your word. For example, 
 # if the top row of the board is c-z-o-w-a, and you want to play "cow",
-# return (0,2,3) . 
+# return (0,2,4) . 
 
 # ``tiles'' is an array of 25 characters, representing the board. The 
 # first character in the array is the top-left character, the sixth is 
