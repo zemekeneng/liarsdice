@@ -41,7 +41,7 @@ def dump_game(tiles,moves,colors) :
         for x in range(5) :
             z = (y * 5) + x
             board_pic += tiles[z]
-            colors_pic += '.xo'[colors[z]]
+            colors_pic += '.12'[colors[z]]
         canvas.append(board_pic + ' ' + colors_pic)
     for i in canvas :
         logging.debug(i)
