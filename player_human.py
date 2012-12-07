@@ -33,17 +33,15 @@ def find_moves(word,tiles) :
         if 0 == len(whatsleft) :
             return [sofar,]
         letter = whatsleft[0]
-        moves = None
-        for i in indexes.get(letter) :
+        moves = []
+        for i in indexes.get(letter,[]) :
             if i in sofar :
                 continue
             nextsofar = sofar[:]
             nextsofar.append(i)
             x = find_moves_helper(indexes,nextsofar,whatsleft[1:])
-            if None == x :
-                return None
-            if None == moves :
-                moves = []
+            if 0 == len(x) :
+                return []
             moves.extend(x)
         return moves
 
