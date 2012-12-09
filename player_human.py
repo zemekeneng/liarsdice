@@ -59,7 +59,7 @@ def get_move(tiles,moves,colors) :
             continue
         print 'There are multiple ways to make "%s". Please choose one.' % word
         for i in range(len(a)) :
-            print '%5d) %s' % (i + 1,' '.join(map(lambda x : '%d,%d' % ((x % 5) + 1,(x % 5) + 1),a[i])))
+            print '%5d) %s' % (i + 1,' '.join(map(lambda x : '%d,%d' % ((x % 5) + 1,(x / 5) + 1),a[i])))
         choice = raw_input()
         try :
             x = int(choice) - 1
