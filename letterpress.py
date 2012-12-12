@@ -98,7 +98,8 @@ def play_game(tiles,player_1,player_2,debug) :
         clocks[whose_move - 1] += elapsed
         if MAX_TIME_PER_GAME < clocks[whose_move - 1] :
             logging.info('player %d took too long, disqualifying ...' % (whose_move,))
-            disqualified = whose_move
+            if not debug :
+                disqualified = whose_move
             break
 
         # did they pass? if so, check if game is over, otherwise continue
