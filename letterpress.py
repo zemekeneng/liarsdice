@@ -61,6 +61,7 @@ def play_game(tiles,player_1,player_2,debug) :
     #
     moves = []
     colors = []
+    prefixes = {}
     for i in range(25) :
         colors.append(0)
     clocks = [0.0,0.0]
@@ -140,20 +141,17 @@ def play_game(tiles,player_1,player_2,debug) :
 
         # already been played?
         #
-        for i in moves :
-            if None == i :
-                continue
-            if word == ''.join(map(lambda x : tiles[x],i[:len(word)])) :
-                logging.info('player %d played word (%s) already played (%s), disqualifying ...' % (whose_move,word,i))
-                disqualified = whose_move
-                break
-        if None != disqualified :
+        if word in prefixes :
+            logging.info('player %d played word (%s) prefix of already played word, disqualifying ...' % (whose_move,word,))
+            disqualified = whose_move
             break
 
         # looks good, let's play it
         #
         logging.info('player %d played %s ("%s") ...' % (whose_move,str(move),word))
         moves.append(move)
+        for i in range(len(word) + 1) :
+            prefixes[word[:i]] = 1
 
         # update the colors
         #
