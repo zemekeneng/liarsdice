@@ -1,7 +1,11 @@
 # player_test.py -- template for creating a player to play letterpress
 
-# Hello! To write a player to play letterpress, create a file
-# called my_player.py, and implement the single function, ``get_move''.
+# Letterpress, by the way, is a sweet game for the iPhone, check it out:
+#
+#   https://itunes.apple.com/us/app/letterpress-word-game/id526619424?mt=8
+
+# To write a player to play letterpress, create a file called my_player.py, 
+# and implement the single function, ``get_move''.
 # 
 # You can then match your player against another using the letterpress.py
 # script, like this:
