@@ -202,7 +202,7 @@ def play_game(tiles,player_1,player_2,debug) :
     # did someone get disqualified?
     #
     if None != disqualified :
-        winner = {1:2,2:1}[disqualified]
+        winner = 1 - (disqualified + 1)
         logging.info('player %d wins' % winner)
         return winner
 
