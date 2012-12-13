@@ -65,7 +65,7 @@ def play_game(tiles,player_1,player_2,debug) :
     for i in range(25) :
         colors.append(0)
     clocks = [0.0,0.0]
-    whose_move = 1
+    whose_move = 0
     logging.info('tiles: %s' % tiles)
 
     # put the players in a tuple so we can flip back and forth 
@@ -84,21 +84,23 @@ def play_game(tiles,player_1,player_2,debug) :
         #
         started = time.time()
         if debug :
-            move = players[whose_move - 1](tiles[:],moves[:],colors[:])
+            move = players[whose_move](tiles[:],moves[:],colors[:])
+            logging.info("move: %s" % str(move))
         else :
             try :
-                move = players[whose_move - 1](tiles[:],moves[:],colors[:])
+                move = players[whose_move](tiles[:],moves[:],colors[:])
+                logging.info("move: %s" % str(move))
             except :
-                logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move,str(sys.exc_info()[:2])))
+                logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move + 1,str(sys.exc_info()[:2])))
                 disqualified = whose_move
                 break
 
         # did they take too long?
         #
         elapsed = time.time() - started
-        clocks[whose_move - 1] += elapsed
-        if MAX_TIME_PER_GAME < clocks[whose_move - 1] :
-            logging.info('player %d took too long, disqualifying ...' % (whose_move,))
+        clocks[whose_move] += elapsed
+        if MAX_TIME_PER_GAME < clocks[whose_move] :
+            logging.info('player %d took too long, disqualifying ...' % (whose_move + 1,))
             if not debug :
                 disqualified = whose_move
             break
@@ -110,7 +112,7 @@ def play_game(tiles,player_1,player_2,debug) :
             if 2 <= len(moves) and None == moves[-2] :
                 logging.info('last two plays were passes, breaking ...')
                 break
-            whose_move = {1:2,2:1}[whose_move]
+            whose_move = 1 - whose_move
             continue
                 
         # ok, they played a word, make sure it is a legal play
@@ -121,13 +123,13 @@ def play_game(tiles,player_1,player_2,debug) :
             used = {}
             for i in move :
                 if i in used :
-                    logging.info('player %d used %s twice, disqualifying ...' % (whose_move,str(i)))
+                    logging.info('player %d used %s twice, disqualifying ...' % (whose_move + 1,str(i)))
                     disqualified = whose_move
                     break
                 used[i] = 1
                 word += tiles[i]
         except :
-            logging.info('player %d returned an illegal move: %s, disqualifying ...' % (whose_move,str(move)))
+            logging.info('player %d returned an illegal move: %s, disqualifying ...' % (whose_move + 1,str(move)))
             disqualified = whose_move
             break
         if None != disqualified :
@@ -136,20 +138,20 @@ def play_game(tiles,player_1,player_2,debug) :
         # in dictionary?
         #
         if not word_in_sowpods(word) :
-            logging.info('player %d played word not in dictionary (%s), disqualifying ...' % (whose_move,word))
+            logging.info('player %d played word not in dictionary (%s), disqualifying ...' % (whose_move + 1,word))
             disqualified = whose_move
             break
 
         # already been played?
         #
         if word in prefixes :
-            logging.info('player %d played word (%s) prefix of already played word, disqualifying ...' % (whose_move,word,))
+            logging.info('player %d played word (%s) prefix of already played word, disqualifying ...' % (whose_move + 1,word,))
             disqualified = whose_move
             break
 
         # looks good, let's play it
         #
-        logging.info('player %d played %s ("%s") ...' % (whose_move,str(move),word))
+        logging.info('player %d played %s ("%s") ...' % (whose_move + 1,str(move),word))
         moves.append(move)
         for i in range(len(word) + 1) :
             prefixes[word[:i]] = 1
@@ -164,20 +166,20 @@ def play_game(tiles,player_1,player_2,debug) :
             surrounded = True
             x = i % 5 
             y = i / 5
-            if surrounded and x > 0 and colors[i - 1] in (0,whose_move) :
+            if surrounded and x > 0 and colors[i - 1] in (0,whose_move + 1) :
                 surrounded = False
-            if surrounded and x < 4 and colors[i + 1] in (0,whose_move) :
+            if surrounded and x < 4 and colors[i + 1] in (0,whose_move + 1) :
                 surrounded = False
-            if surrounded and y > 0 and colors[i - 5] in (0,whose_move) :
+            if surrounded and y > 0 and colors[i - 5] in (0,whose_move + 1) :
                 surrounded = False
-            if surrounded and y < 4 and colors[i + 5] in (0,whose_move) :
+            if surrounded and y < 4 and colors[i + 5] in (0,whose_move + 1) :
                 surrounded = False
 
             if not surrounded :
                 new_colors.append(i)
 
         for i in new_colors :
-            colors[i] = whose_move 
+            colors[i] = whose_move + 1
 
         # is the board filled in?
         #
@@ -192,7 +194,7 @@ def play_game(tiles,player_1,player_2,debug) :
 
         # flip whose_move and continue
         #
-        whose_move = {1:2,2:1}[whose_move]
+        whose_move = 1 - whose_move
         continue
         
     dump_game(tiles,moves,colors)
