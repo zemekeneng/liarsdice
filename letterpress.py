@@ -175,7 +175,7 @@ def play_game(tiles,player_1,player_2,debug) :
             if surrounded and y < 4 and colors[i + 5] in (0,whose_move + 1) :
                 surrounded = False
 
-            if not surrounded :
+            if colors[i] == 0 or not surrounded :
                 new_colors.append(i)
 
         for i in new_colors :
