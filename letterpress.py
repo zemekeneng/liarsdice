@@ -20,106 +20,88 @@ player_my_algo, using seed "seed":
 See player_test.py for documentation on how to write a player.
 '''
 
-MAX_TIME_PER_GAME = 60
-
-# this distribution is calculated from the square root of the observed frequency in sowpods
-#
-TILES_LETTER_FREQ = 'aaaaaabbbccccddddeeeeeeeeffgggghhhiiiiiiijkklllllmmmmnnnnnnooooooppppqrrrrrrsssssssttttttuuuuvvwwxyyyz'
-
-import sys,logging,os,random,time
+import sys,logging,os,random,time,cPickle
 
 g_sowpods = None
-def word_in_sowpods(word) :
-    global g_sowpods
-    if None == g_sowpods :
-        g_sowpods = {}
-        for i in file('sowpods.txt').readlines() :
-            g_sowpods[i[:-1]] = 1
-    return word in g_sowpods
 
-def dump_game(tiles,moves,colors) :
-    canvas = []
-    for y in range(5) :
-        board_pic = ''
-        colors_pic = ''
-        for x in range(5) :
-            z = (y * 5) + x
-            board_pic += tiles[z]
-            colors_pic += '.12'[colors[z]]
-        canvas.append(board_pic + ' ' + colors_pic)
-    for i in canvas :
-        logging.debug(i)
-    m = []
-    for i in moves :
-        if None == i :
-            m.append('PASS')
-        else :
-            m.append('%s (%s)' % (''.join(map(lambda x : tiles[x],i)),i))
-    t = ', '.join(m)
-    logging.debug(t)
-    logging.debug('player 1: %d, player 2: %d' % (len(filter(lambda x : x == 1,colors)),len(filter(lambda x : x == 2,colors))))
+class Game :
 
-def play_game(tiles,player_1,player_2,debug) :
-
-    # set up the game
+    # maximum allowed time per game per player
     #
-    moves = []
-    colors = []
-    prefixes = {}
-    for i in range(25) :
-        colors.append(0)
-    clocks = [0.0,0.0]
-    whose_move = 0
-    logging.info('tiles: %s' % tiles)
+    MAX_TIME_PER_GAME = 60
 
-    # put the players in a tuple so we can flip back and forth 
+    # this distribution is calculated from the square root of the observed frequency in sowpods
     #
-    players = (player_1,player_2)
-    
-    # keep playing until someone makes an illegal move,
-    # or the last two moves were passes
-    #
-    disqualified = None
-    while 1 :
-    
-        dump_game(tiles,moves,colors)
+    TILES_LETTER_FREQ = 'aaaaaabbbccccddddeeeeeeeeffgggghhhiiiiiiijkklllllmmmmnnnnnnooooooppppqrrrrrrsssssssttttttuuuuvvwwxyyyz'
+
+    def __init__(self) :
+        pass
         
-        # get the player's move
-        #
-        started = time.time()
-        if debug :
-            move = players[whose_move](tiles[:],moves[:],colors[:])
-            logging.info("move: %s" % str(move))
+    def new_game(self,tiles = None) :
+        self.moves = []
+        self.colors = []
+        for i in range(25) :
+            self.colors.append(0)
+        self.clocks = [0.0,0.0]
+        if None == tiles :
+            self.tiles = self.generate_board()
         else :
-            try :
-                move = players[whose_move](tiles[:],moves[:],colors[:])
-                logging.info("move: %s" % str(move))
-            except :
-                logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move + 1,str(sys.exc_info()[:2])))
-                disqualified = whose_move
-                break
+            self.tiles = tiles
+        self.debug = False
 
-        # did they take too long?
-        #
-        elapsed = time.time() - started
-        clocks[whose_move] += elapsed
-        if MAX_TIME_PER_GAME < clocks[whose_move] :
-            logging.info('player %d took too long, disqualifying ...' % (whose_move + 1,))
-            if not debug :
-                disqualified = whose_move
-            break
+    def serialize(self) :   
+        return cPickle.dumps((self.tiles,self.moves,self.colors))
 
-        # did they pass? if so, check if game is over, otherwise continue
+    def deserialize(self,s) :
+        self.tiles,self.moves,self.colors = cPickle.loads(s)
+
+    @classmethod
+    def word_in_sowpods(cls,word) :
+        global g_sowpods
+        if None == g_sowpods :
+            g_sowpods = {}
+            for i in file('sowpods.txt').readlines() :
+                g_sowpods[i[:-1]] = 1
+        return word in g_sowpods
+
+    @classmethod
+    def generate_board(cls,rng = None) :
+        if None == rng :
+            rng = random.Random()
+        tiles = ''
+        for i in range(25) :
+            tiles += rng.choice(Game.TILES_LETTER_FREQ)
+        return tiles
+        
+    def dump(self) :
+        canvas = []
+        for y in range(5) :
+            board_pic = ''
+            colors_pic = ''
+            for x in range(5) :
+                z = (y * 5) + x
+                board_pic += self.tiles[z]
+                colors_pic += '.12'[self.colors[z]]
+            canvas.append(board_pic + ' ' + colors_pic)
+        m = []
+        for i in self.moves :
+            if None == i :
+                m.append('PASS')
+            else :
+                m.append('%s (%s)' % (''.join(map(lambda x : self.tiles[x],i)),i))
+        t = ', '.join(m)
+        canvas.append(t)
+        canvas.append('player 1: %d, player 2: %d' % (len(filter(lambda x : x == 1,self.colors)),len(filter(lambda x : x == 2,self.colors))))
+        return canvas
+
+    def is_legal_move(self,move) :
+
+        # always ok to pass
         #
         if None == move :
-            moves.append(move)
-            if 2 <= len(moves) and None == moves[-2] :
-                logging.info('last two plays were passes, breaking ...')
-                break
-            whose_move = 1 - whose_move
-            continue
-                
-        # ok, they played a word, make sure it is a legal play
+            return (True,)
+
+        # they played a word, make sure it is a legal play
         #
         word = ''
         try :
@@ -127,42 +109,54 @@ def play_game(tiles,player_1,player_2,debug) :
             used = {}
             for i in move :
                 if i in used :
-                    logging.info('player %d used %s twice, disqualifying ...' % (whose_move + 1,str(i)))
-                    disqualified = whose_move
-                    break
+                    return (False,1,'used same tile twice')
                 used[i] = 1
-                word += tiles[i]
+                word += self.tiles[i]
         except :
-            logging.info('player %d returned an illegal move: %s, disqualifying ...' % (whose_move + 1,str(move)))
-            disqualified = whose_move
-            break
-        if None != disqualified :
-            break
+            return (False,2,'bad syntax')
 
         # in dictionary?
         #
-        if not word_in_sowpods(word) :
-            logging.info('player %d played word not in dictionary (%s), disqualifying ...' % (whose_move + 1,word))
-            disqualified = whose_move
-            break
+        if not self.word_in_sowpods(word) :
+            return (False,3,'"%s" not in dictionary' % word)
 
         # already been played?
         #
-        if word in prefixes :
-            logging.info('player %d played word (%s) prefix of already played word, disqualifying ...' % (whose_move + 1,word,))
-            disqualified = whose_move
-            break
+        word = ''.join(map(lambda x : self.tiles[x],move))
+        for i in self.moves :
+            if ''.join(map(lambda x : self.tiles[x],i[:len(word) + 1])) == word :
+                return (False,4,'already played')
 
-        # looks good, let's play it
+        # looks good
         #
-        logging.info('player %d played %s ("%s") ...' % (whose_move + 1,str(move),word))
-        moves.append(move)
-        for i in range(len(word) + 1) :
-            prefixes[word[:i]] = 1
+        return (True,)
+
+    def is_game_over(self) :
+
+        # two consecutive passes?
+        #
+        if 2 <= len(self.moves) and None == self.moves[-1] and None == self.moves[-2] :
+            return True
+        
+        # all tiles colored?
+        #
+        if 25 == len(filter(lambda x : x != 0,self.colors)) :
+            return True
+
+        # nope.
+        #
+        return False
+
+    def do_move(self,move) :
+
+        # remember the move
+        #
+        self.moves.append(move)
 
         # update the colors
         #
         new_colors = []
+        color = ((len(self.moves) - 1) % 2) + 1
         for i in move :
             
             # make sure it isn't surrounded
@@ -170,73 +164,110 @@ def play_game(tiles,player_1,player_2,debug) :
             surrounded = True
             x = i % 5 
             y = i / 5
-            if surrounded and x > 0 and colors[i - 1] in (0,whose_move + 1) :
+            if surrounded and x > 0 and self.colors[i - 1] in (0,color) :
                 surrounded = False
-            if surrounded and x < 4 and colors[i + 1] in (0,whose_move + 1) :
+            if surrounded and x < 4 and self.colors[i + 1] in (0,color) :
                 surrounded = False
-            if surrounded and y > 0 and colors[i - 5] in (0,whose_move + 1) :
+            if surrounded and y > 0 and self.colors[i - 5] in (0,color) :
                 surrounded = False
-            if surrounded and y < 4 and colors[i + 5] in (0,whose_move + 1) :
+            if surrounded and y < 4 and self.colors[i + 5] in (0,color) :
                 surrounded = False
 
-            if colors[i] == 0 or not surrounded :
+            if self.colors[i] == 0 or not surrounded :
                 new_colors.append(i)
 
         for i in new_colors :
-            colors[i] = whose_move + 1
+            self.colors[i] = color
 
-        # is the board filled in?
-        #
-        if 0 != len(new_colors) :
-            flag = 1
-            for i in colors :
-                if 0 == i :
-                    flag = 0
-                    break
-            if flag :
-                break
+        return
 
-        # flip whose_move and continue
-        #
-        whose_move = 1 - whose_move
-        continue
-        
-    dump_game(tiles,moves,colors)
-
-    # did someone get disqualified?
-    #
-    if None != disqualified :
-        winner = 2 - disqualified
-        logging.info('player %d wins' % winner)
-        return winner
-
-    # nope, let's count colors
-    #
-    points = [0,0,0]
-    for i in colors :
-        points[i] += 1
-
-    logging.info('game over, white: %d, player 1: %d, player 2: %d' % (points[0],points[1],points[2]))
-       
-    # all done, return result
-    #
-    if 0 :
-        pass
-    elif points[1] > points[2] :
-        logging.info('player 1 wins')
-        return 1   
-    elif points[2] > points[1] :
-        logging.info('player 2 wins')
-        return 2
-    else :
-        logging.info('tie game')
+    def get_winner(self) :
+        player_1 = len(filter(lambda x : x == 1,self.colors))
+        player_2 = len(filter(lambda x : x == 2,self.colors))
+        if player_1 > player_2 :
+            return 1
+        if player_2 > player_1 :
+            return 2
         return 0
 
-def generate_tiles(rng):
-    tiles = ''
-    for i in range(25) :
-        tiles += random.choice(TILES_LETTER_FREQ)
-    return tiles
+    def play_game(self,player1,player2) :
+
+        logging.info('tiles: %s' % self.tiles)
+        players = (player1,player2)
+
+        # keep playing until someone makes an illegal move,
+        # or the last two moves were passes
+        #
+        disqualified = None
+        while not self.is_game_over() :
+        
+            whose_move = len(self.moves) % 2
+            for i in self.dump() :
+                logging.debug(i)
+            
+            # get the player's move
+            #
+            started = time.time()
+            if self.debug :
+                move = players[whose_move](self.tiles[:],self.moves[:],self.colors[:])
+                logging.info("move: %s" % str(move))
+            else :
+                try :
+                    move = players[whose_move](self.tiles[:],self.moves[:],self.colors[:])
+                    logging.info("move: %s" % str(move))
+                except :
+                    logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move + 1,str(sys.exc_info()[:2])))
+                    disqualified = whose_move
+                    break
+
+            # did they take too long?
+            #
+            elapsed = time.time() - started
+            self.clocks[whose_move] += elapsed
+            if Game.MAX_TIME_PER_GAME < self.clocks[whose_move] :
+                logging.info('player %d took too long, disqualifying ...' % (whose_move + 1,))
+                if not self.debug :
+                    disqualified = whose_move
+                break
+
+            # legal move?
+            #
+            legal = self.is_legal_move(move)
+            if not legal[0] :
+                logging.info('player %d played illegal move (%d, %s), disqualifying ...' % (whose_move + 1,legal[1],legal[2]))
+                disqualified = whose_move
+                break
+
+            # looks good, let's play it
+            #
+            logging.info('player %d played %s ...' % (whose_move + 1,str(move)))
+            self.do_move(move)
+
+            # repeat!
+            #
+            continue
+            
+        for i in self.dump() :
+            logging.debug(i)
+
+        # did someone get disqualified?
+        #
+        if None != disqualified :
+            winner = 2 - disqualified
+            logging.info('player %d wins' % winner)
+            return winner
+
+        # nope, let's count colors
+        #
+        winner = self.get_winner()
+           
+        # all done, return result
+        #
+        if 0 == winner  :
+            logging.info('game over, tie game')
+        else :
+            logging.info('game over, player %d wins' % winner)
+        return winner
 
 def make_player(s) :
     filename = s
@@ -262,7 +293,7 @@ def tournament(n,seed,player_names) :
     logging.info('generating game boards ...')
     game_boards = []
     for i in range(n) :
-        game_boards.append(generate_tiles(rng))
+        game_boards.append(Game.generate_board(rng))
     results = {}
     scores = {}
     for r in range(n) :
@@ -271,7 +302,9 @@ def tournament(n,seed,player_names) :
                 if p1 == p2 :
                     continue
                 logging.info('playing game %d between %s (player 1) and %s (player 2) on game board %s ...' % (r,p1,p2,game_boards[r]))
-                result = play_game(game_boards[r],players[p1],players[p2],False)
+                game = Game()
+                game.new_game(game_boards[r])
+                result = game.play_game(players[p1],players[p2])
                 if not results.has_key((p1,p2)) :
                     results[(p1,p2)] = []
                 results[(p1,p2)].append(result)
@@ -290,15 +323,16 @@ def tournament(n,seed,player_names) :
         logging.info('SCORE')
     return results
 
-def single_game(seed,player_name_1,player_name_2) :
-    rng = random.Random(seed)
+def single_game(player_name_1,player_name_2,tiles = None) :
     logging.info('making player %s ...' % player_name_1)
     p1 = make_player(player_name_1)
     logging.info('making player %s ...' % player_name_2)
     p2 = make_player(player_name_2)
     logging.info('playing game between %s (player 1) and %s (player 2) ...' % (player_name_1,player_name_2))
-    tiles = generate_tiles(rng)
-    result = play_game(tiles,p1,p2,True)
+    game = Game()
+    game.new_game(tiles)
+    result = game.play_game(p1,p2)
+    game.debug = True
     if 0 == result :
         logging.info('tie game')
     if 1 == result :
@@ -322,10 +356,10 @@ def main(argv) :
         sys.exit()
 
     elif 'game' == c :
-        seed = None
+        tiles = None
         if 5 == len(sys.argv) :
-            seed = sys.argv[4]
-        single_game(seed,sys.argv[2],sys.argv[3])
+            tiles = sys.argv[4]
+        single_game(sys.argv[2],sys.argv[3],tiles)
 
     elif 'tournament' == c :
         tournament(int(sys.argv[2]),sys.argv[3],sys.argv[4:])
