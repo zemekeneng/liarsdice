@@ -37,8 +37,7 @@
 
 # get_move() is deliberately not object oriented, but you you're welcome to 
 # fake it, if you want to create something in your constructor or at a new 
-# game. Just check tiles to see if it is different than before, or keep a 
-# hash of them in global scope. 
+# game. Just check moves to see if it is of length 0 or 1.
 
 # Lastly, look at the other player_XXXX.py scripts for examples.
 
@@ -63,8 +62,13 @@ def get_move(tiles,moves,colors) :
 ####################################################
 
 class MyPlayer :
-    def __init__(self,tiles) :
+    
+    def __init__(self) :
+        self.tiles = None
+    
+    def new_game(self,tiles) :
         self.tiles = tiles
+    
     def get_move(self,moves,colors) :
         
         # TODO: write your algorithm here ...
@@ -74,12 +78,14 @@ class MyPlayer :
 
 # the plumbing to instantiate the above ...
 
-g_game = (None,None)
+g_player = None
 
 def get_move_RENAME_ME(tiles,moves,colors) :
-    global g_game
-    if tiles != g_game[0] :
-        g_game = (tiles,MyPlayer(tiles))
-    move = g_game[1].get_move(moves,colors)
+    global g_player
+    if None == g_player :
+        g_player = MyPlayer()
+    if 2 > len(moves) :
+        g_player.new_game(tiles)
+    move = g_player[1].get_move(moves,colors)
     return move
 

@@ -12,8 +12,8 @@ Play a game between player_random.py and player_human.py:
 
     % python letterpress.py game player_random player_human
 
-Plays 100 round robin games between player_123.py, player_common_threes.py, and 
-player_my_algo, using seed "seed".
+Play 100 round robin games between player_123.py, player_common_threes.py, and 
+player_my_algo, using seed "seed":
 
     % python letterpress.py tournament 100 seed player_123 player_common_threes player_my_algo
 
@@ -21,7 +21,10 @@ See player_test.py for documentation on how to write a player.
 '''
 
 MAX_TIME_PER_GAME = 60
-SOWPODS_LETTER_FREQ = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeessssssssssssssssssssssssssssssssssssssssssssssssssssssssssiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnooooooooooooooooooooooooooooooooooooooootttttttttttttttttttttttttttttttttttttttlllllllllllllllllllllllllllllllccccccccccccccccccccccccdddddddddddddddddddduuuuuuuuuuuuuuuuuuuuppppppppppppppppppmmmmmmmmmmmmmmmmmgggggggggggggggghhhhhhhhhhhhhhhbbbbbbbbbbbyyyyyyyyyfffffffvvvvvkkkkkwwwwzzxqj'
+
+# this distribution is calculated from the square root of the observed frequency in sowpods
+#
+TILES_LETTER_FREQ = 'aaaaaabbbccccddddeeeeeeeeffgggghhhiiiiiiijkklllllmmmmnnnnnnooooooppppqrrrrrrsssssssttttttuuuuvvwwxyyyz'
 
 import sys,logging,os,random,time
 
@@ -51,9 +54,10 @@ def dump_game(tiles,moves,colors) :
         if None == i :
             m.append('PASS')
         else :
-            m.append(str(i) + ' (' + ''.join(map(lambda x : tiles[x],i)) + ')')
+            m.append('%s (%s)' % (''.join(map(lambda x : tiles[x],i)),i))
     t = ', '.join(m)
     logging.debug(t)
+    logging.debug('player 1: %d, player 2: %d' % (len(filter(lambda x : x == 1,colors)),len(filter(lambda x : x == 2,colors))))
 
 def play_game(tiles,player_1,player_2,debug) :
 
@@ -202,7 +206,7 @@ def play_game(tiles,player_1,player_2,debug) :
     # did someone get disqualified?
     #
     if None != disqualified :
-        winner = 1 - (disqualified + 1)
+        winner = 2 - disqualified
         logging.info('player %d wins' % winner)
         return winner
 
@@ -231,16 +235,20 @@ def play_game(tiles,player_1,player_2,debug) :
 def generate_tiles(rng):
     tiles = ''
     for i in range(25) :
-        tiles += random.choice(SOWPODS_LETTER_FREQ)
+        tiles += random.choice(TILES_LETTER_FREQ)
     return tiles
 
 def make_player(s) :
+    filename = s
+    attr = 'get_move'
+    if -1 != s.find('.') :
+        filename,attr = s.split('.')
     try :
-        m = __import__(s)
+        m = __import__(filename)
     except :
-        logging.warn('couldn\'t import "%s"' % s)
+        logging.warn('couldn\'t import "%s"' % filename)
         return None
-    f = getattr(m,'get_move')
+    f = getattr(m,attr)
     return f
 
 def tournament(n,seed,player_names) :
@@ -251,31 +259,35 @@ def tournament(n,seed,player_names) :
         logging.info('making player %s ...' % player_id)
         p = make_player(i)
         players[player_id] = p
+    logging.info('generating game boards ...')
+    game_boards = []
+    for i in range(n) :
+        game_boards.append(generate_tiles(rng))
     results = {}
+    scores = {}
     for r in range(n) :
         for p1 in players.keys() :
             for p2 in players.keys() :
                 if p1 == p2 :
                     continue
-                logging.info('playing game between %s and %s ...' % (p1,p2))
-                tiles = generate_tiles(rng)
-                result = play_game(tiles,players[p1],players[p2],False)
+                logging.info('playing game %d between %s (player 1) and %s (player 2) on game board %s ...' % (r,p1,p2,game_boards[r]))
+                result = play_game(game_boards[r],players[p1],players[p2],False)
                 if not results.has_key((p1,p2)) :
                     results[(p1,p2)] = []
                 results[(p1,p2)].append(result)
-    scores = {}
-    for i in players :
-        scores[i] = 0
-    for i,j in results.items() :
-        for k in j :
-            if 0 == k :
-                pass
-            elif 1 == k :
-                scores[i[0]] += 1
-            elif 2 == k :
-                scores[i[1]] += 1
-    for i,j in scores.items() :
-        logging.info('SCORE\t%s\t%d' % (i,j))
+                winner = None
+                if 1 == result :
+                    winner = p1
+                if 2 == result :
+                    winner = p2
+                if not scores.has_key(winner) :
+                    scores[winner] = 0
+                scores[winner] += 1
+        k = scores.keys()
+        k.sort(key = lambda x : scores[x],reverse = True)
+        for i in k :
+            logging.info('SCORE\tround: %d of %d\t%s\t%d' % (r + 1,n,i,scores[i]))
+        logging.info('SCORE')
     return results
 
 def single_game(seed,player_name_1,player_name_2) :
@@ -284,7 +296,7 @@ def single_game(seed,player_name_1,player_name_2) :
     p1 = make_player(player_name_1)
     logging.info('making player %s ...' % player_name_2)
     p2 = make_player(player_name_2)
-    logging.info('playing game between %s and %s ...' % (player_name_1,player_name_2))
+    logging.info('playing game between %s (player 1) and %s (player 2) ...' % (player_name_1,player_name_2))
     tiles = generate_tiles(rng)
     result = play_game(tiles,p1,p2,True)
     if 0 == result :
