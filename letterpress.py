@@ -124,7 +124,9 @@ class Game :
         #
         word = ''.join(map(lambda x : self.tiles[x],move))
         for i in self.moves :
-            if ''.join(map(lambda x : self.tiles[x],i[:len(word) + 1])) == word :
+            if None == i :
+                continue
+            if ''.join(map(lambda x : self.tiles[x],i[:len(word)])) == word :
                 return (False,4,'already played')
 
         # looks good
@@ -152,6 +154,11 @@ class Game :
         # remember the move
         #
         self.moves.append(move)
+
+        # pass?
+        #
+        if None == move :
+            return
 
         # update the colors
         #

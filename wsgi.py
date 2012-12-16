@@ -45,26 +45,24 @@ def wsgi_response(params) :
                     break
         else :
             move = get_player(player)(game.tiles,game.moves,game.colors)
+        legal = game.is_legal_move(move)
+        if not legal[0] :
+            d['message'] = '<p>Illegal move (%s).</p>' % legal[2]
+            break
+        else :
+            game.do_move(move)
 
-        if None != move :
-            legal = game.is_legal_move(move)
-            if not legal[0] :
-                d['message'] = '<p>Illegal move (%s).</p>' % legal[2]
+            if game.is_game_over() :
+                winner = game.get_winner()
+                if 0 == winner :
+                    d['message'] = '<p>Game over. Tie. <a href="?">Play again.</p>'
+                else :
+                    d['message'] = '<p>Game over. %s wins.</p> <a href="?">Play again.</p>' % {1:'Red',2:'Blue'}[winner]
+                d['button'] = ''
                 break
-            else :
-                game.do_move(move)
 
-                if game.is_game_over() :
-                    winner = game.get_winner()
-                    if 0 == winner :
-                        d['message'] = '<p>Game over. Tie. <a href="?">Play again.</p>'
-                    else :
-                        d['message'] = '<p>Game over. %s wins.</p> <a href="?">Play again.</p>' % {1:'Red',2:'Blue'}[winner]
-                    d['button'] = ''
-                    break
-
-                if '_human' == players[len(game.moves) % 2] :
-                    break
+            if '_human' == players[len(game.moves) % 2] :
+                break
 
     d['red_score'] = len(filter(lambda x : x == 1,game.colors))
     d['blue_score'] = len(filter(lambda x : x == 2,game.colors))
@@ -136,7 +134,7 @@ def wsgi_response(params) :
 <p>How to play:</p>
 <ul>
 <li>form words by clicking on tiles</li>
-<li>you can't use a tile twice</li>
+<li>you can't use a tile twice in a single play</li>
 <li>you can't play a word that starts with a word that has been played before</li>
 <li>tiles played change to your color if not surrounded by your opponent</li>
 <li>game is over when all tiles are colored</li>
