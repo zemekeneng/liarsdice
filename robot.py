@@ -32,14 +32,14 @@
 # representing the color of each tile. 
 #
 #   0   white (unowned)
-#   1   dark blue (owned by player 1)
-#   2   dark red (owner by player 2)
+#   1   blue (owned by player 1)
+#   2   red (owner by player 2)
 
 # get_move() is deliberately not object oriented, but you you're welcome to 
 # fake it, if you want to create something in your constructor or at a new 
 # game. Just check moves to see if it is of length 0 or 1.
 
-# Lastly, look at the robots.py for example players.
+# Lastly, look at the players.py for example players.
 
 ####################################################
 #
