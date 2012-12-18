@@ -13,7 +13,9 @@ You can write a robot by implementing the function:
 
 For a quick start:
 
-    % python letterpress.py game players.get_move_human players.get_move_random 
+    % git clone git://github.com/colinmsaunders/letterpress.git
+    % cd letterpress
+    % python letterpress.py game players.p_human players.p_random 
 
 See [robot.py][2] for dox on how to write a robot.
 

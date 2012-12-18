@@ -2,15 +2,15 @@
 
 # included players:
 #
-#   get_move_123            -- always play the top left -most 3 tiles
-#   get_move_all_twos       -- looks for any two letter word
-#   get_move_common_threes  -- looks for common three letter words
-#   get_move_random         -- play a random word in sowpods
-#   get_move_human          -- play against human on the console
+#   p_top_left        -- always play the top left -most 3 tiles
+#   p_all_twos        -- looks for any two letter word
+#   p_common_threes   -- looks for common three letter words
+#   p_random          -- play a random word in sowpods
+#   p_human           -- play against human on the console
 
 import random
 
-def get_move_123(tiles,moves,colors) :
+def p_top_left(tiles,moves,colors) :
     
     return (0,1,2)
 
@@ -28,7 +28,7 @@ ALL_TWO_LETTER_WORDS = [
 'yo', 'yu', 'za', 'zo', 'zz',
 ]
 
-def get_move(tiles,colors,moves) :
+def p_all_twos(tiles,colors,moves) :
     '''
     return a random two letter word if it can find it. sometimes returns None,
     sometimes returns an unplayable word
@@ -50,7 +50,7 @@ COMMON_THREE_LETTER_WORDS = [
     'was', 'way', 'who', 'you', 
 ]
 
-def get_move_common_threes(tiles,colors,moves) :
+def p_common_threes(tiles,colors,moves) :
     '''
     return a random three letter word if it can find it. sometimes returns None,
     sometimes returns a word not in sowpods, sometimes returns an unplayable word
@@ -65,7 +65,7 @@ def get_move_common_threes(tiles,colors,moves) :
     return None
 
 g_sowpods = None
-def get_random_word() :
+def _get_random_word() :
     global g_sowpods
     if None == g_sowpods :
         g_sowpods = []
@@ -73,7 +73,7 @@ def get_random_word() :
             g_sowpods.append(i[:-1])
     return random.choice(g_sowpods)
 
-def word_in_tiles(word,tiles) :
+def _word_in_tiles(word,tiles) :
     m = []
     for i in word :
         indexes = []
@@ -90,7 +90,7 @@ def word_in_tiles(word,tiles) :
         m.append(random.choice(indexes))
     return m 
 
-def has_been_played(move,tiles,moves) :
+def _has_been_played(move,tiles,moves) :
     word = ''.join(map(lambda x : tiles[x],move))
     for i in moves :
         if None == i :
@@ -99,17 +99,17 @@ def has_been_played(move,tiles,moves) :
             return True
     return False
 
-def get_move_random(tiles,moves,colors) :
+def p_random(tiles,moves,colors) :
     for i in range(1000) :
-        word = get_random_word()
-        move = word_in_tiles(word,tiles)
+        word = _get_random_word()
+        move = _word_in_tiles(word,tiles)
         if None == move :
             continue
-        if not has_been_played(move,tiles,moves) :
+        if not _has_been_played(move,tiles,moves) :
             return move
     return None
 
-def dump_game(tiles,moves,colors) :
+def _dump_game(tiles,moves,colors) :
     canvas = []
     for y in range(5) :
         board_pic = ''
@@ -130,7 +130,7 @@ def dump_game(tiles,moves,colors) :
     t = ', '.join(m)
     print t
 
-def find_moves(word,tiles) :
+def _find_moves(word,tiles) :
     indexes = {}
     for z in range(25) :
         i = tiles[z]
@@ -138,7 +138,7 @@ def find_moves(word,tiles) :
             indexes[i] = []
         indexes[i].append(z)
 
-    def find_moves_helper(indexes,sofar,whatsleft) :
+    def _find_moves_helper(indexes,sofar,whatsleft) :
         if 0 == len(whatsleft) :
             return [sofar,]
         letter = whatsleft[0]
@@ -148,20 +148,20 @@ def find_moves(word,tiles) :
                 continue
             nextsofar = sofar[:]
             nextsofar.append(i)
-            x = find_moves_helper(indexes,nextsofar,whatsleft[1:])
+            x = _find_moves_helper(indexes,nextsofar,whatsleft[1:])
             if 0 == len(x) :
                 return []
             moves.extend(x)
         return moves
 
-    return find_moves_helper(indexes,[],word)
+    return _find_moves_helper(indexes,[],word)
 
-def get_move_human(tiles,moves,colors) :
+def p_human(tiles,moves,colors) :
     while 1 :
-        dump_game(tiles,moves,colors)
+        _dump_game(tiles,moves,colors)
         print 'You are player #%d. What is your word? ' % (len(moves) % 2 + 1,)
         word = raw_input()
-        a = find_moves(word,tiles)
+        a = _find_moves(word,tiles)
         if 1 == len(a) :
             return a[0]
         if 0 == len(a) :
