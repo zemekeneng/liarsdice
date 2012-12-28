@@ -338,8 +338,8 @@ def single_game(player_name_1,player_name_2,tiles = None) :
     logging.info('playing game between %s (player 1) and %s (player 2) ...' % (player_name_1,player_name_2))
     game = Game()
     game.new_game(tiles)
-    result = game.play_game(p1,p2)
     game.debug = True
+    result = game.play_game(p1,p2)
     if 0 == result :
         logging.info('tie game')
     if 1 == result :
