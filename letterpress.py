@@ -290,23 +290,26 @@ def make_player(s) :
 def tournament(n,seed,player_names) :
     random.seed(seed)
     players = {}
+    scores = {}
     for i in player_names :
         player_id = 'p%d__%s' % (len(players) + 1,i)
         logging.info('making player %s ...' % player_id)
         p = make_player(i)
         players[player_id] = p
+        scores[player_id] = 0
     logging.info('generating game boards ...')
     game_boards = []
     for i in range(n) :
         game_boards.append(Game.generate_board())
     results = {}
-    scores = {}
+    game_num = 0
     for r in range(n) :
         for p1 in players.keys() :
             for p2 in players.keys() :
                 if p1 == p2 :
                     continue
-                logging.info('playing game %d between %s (player 1) and %s (player 2) on game board %s ...' % (r,p1,p2,game_boards[r]))
+                game_num += 1
+                logging.info('playing game %d between %s (player 1) and %s (player 2) on game board %s ...' % (game_num,p1,p2,game_boards[r]))
                 game = Game()
                 game.new_game(game_boards[r])
                 result = game.play_game(players[p1],players[p2])
@@ -321,10 +324,11 @@ def tournament(n,seed,player_names) :
                 if not scores.has_key(winner) :
                     scores[winner] = 0
                 scores[winner] += 1
+                logging.info('RESULT\t%d, %d\t%s\t%s\t%s\t%d' % (game_num,r,p1,p2,game_boards[r],result))
         k = scores.keys()
         k.sort(key = lambda x : scores[x],reverse = True)
         for i in k :
-            logging.info('SCORE\tround: %d of %d\t%s\t%d' % (r + 1,n,i,scores[i]))
+            logging.info('SCORE\tround %d of %d\t%s\t%d' % (r + 1,n,i,scores[i]))
         logging.info('SCORE')
     return results
 
