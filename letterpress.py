@@ -37,7 +37,11 @@ class Game :
     def __init__(self) :
         pass
         
-    def new_game(self,tiles = None) :
+    def new_game(self,tiles,players) :
+        '''
+        tiles can be None, if so, we'll generate a random board
+        players is a pair of (name,get_move) pairs
+        '''
         self.moves = []
         self.colors = []
         for i in range(25) :
@@ -48,6 +52,7 @@ class Game :
         else :
             self.tiles = tiles
         self.debug = False
+        self.players = players
 
     def serialize(self) :   
         return cPickle.dumps((self.tiles,self.moves,self.colors))
@@ -71,6 +76,9 @@ class Game :
             tiles += random.choice(Game.TILES_LETTER_FREQ)
         return tiles
         
+    def player_display(self,i) :
+        return 'player %d (%s)' % (i,self.players[i][0])
+
     def dump(self) :
         canvas = []
         for y in range(5) :
@@ -89,7 +97,7 @@ class Game :
                 m.append('%s (%s)' % (''.join(map(lambda x : self.tiles[x],i)),i))
         t = ', '.join(m)
         canvas.append(t)
-        canvas.append('player 1: %d, player 2: %d' % (len(filter(lambda x : x == 1,self.colors)),len(filter(lambda x : x == 2,self.colors))))
+        canvas.append('%s: %d, %s: %d' % (self.player_display(0),len(filter(lambda x : x == 1,self.colors)),self.player_display(1),len(filter(lambda x : x == 2,self.colors))))
         return canvas
 
     def is_legal_move(self,move) :
@@ -195,10 +203,9 @@ class Game :
             return 2
         return 0
 
-    def play_game(self,player1,player2) :
+    def play_game(self) :
 
         logging.info('tiles: %s' % self.tiles)
-        players = (player1,player2)
 
         # keep playing until someone makes an illegal move,
         # or the last two moves were passes
@@ -214,14 +221,14 @@ class Game :
             #
             started = time.time()
             if self.debug :
-                move = players[whose_move](self.tiles[:],self.moves[:],self.colors[:])
+                move = self.players[whose_move][1](self.tiles[:],self.moves[:],self.colors[:])
                 logging.info("move: %s" % str(move))
             else :
                 try :
-                    move = players[whose_move](self.tiles[:],self.moves[:],self.colors[:])
+                    move = self.players[whose_move][1](self.tiles[:],self.moves[:],self.colors[:])
                     logging.info("move: %s" % str(move))
                 except :
-                    logging.info('player %d threw an exception ("%s"), disqualifying ...' % (whose_move + 1,str(sys.exc_info()[:2])))
+                    logging.info('%s threw an exception ("%s"), disqualifying ...' % (self.player_display(whose_move),str(sys.exc_info()[:2])))
                     disqualified = whose_move
                     break
 
@@ -230,7 +237,7 @@ class Game :
             elapsed = time.time() - started
             self.clocks[whose_move] += elapsed
             if Game.MAX_TIME_PER_GAME < self.clocks[whose_move] :
-                logging.info('player %d took too long, disqualifying ...' % (whose_move + 1,))
+                logging.info('%s took too long, disqualifying ...' % (self,player_display(whose_move),))
                 if not self.debug :
                     disqualified = whose_move
                 break
@@ -239,13 +246,13 @@ class Game :
             #
             legal = self.is_legal_move(move)
             if not legal[0] :
-                logging.info('player %d played illegal move (%d, %s), disqualifying ...' % (whose_move + 1,legal[1],legal[2]))
+                logging.info('%s played illegal move (%d, %s), disqualifying ...' % (self.player_display(whose_move),legal[1],legal[2]))
                 disqualified = whose_move
                 break
 
             # looks good, let's play it
             #
-            logging.info('player %d played %s ...' % (whose_move + 1,str(move)))
+            logging.info('%s played %s ...' % (self.player_display(whose_move),str(move)))
             self.do_move(move)
 
             # repeat!
@@ -259,7 +266,7 @@ class Game :
         #
         if None != disqualified :
             winner = 2 - disqualified
-            logging.info('player %d wins' % winner)
+            logging.info('%s wins' % self.player_display(winner - 1))
             return winner
 
         # nope, let's count colors
@@ -271,7 +278,7 @@ class Game :
         if 0 == winner  :
             logging.info('game over, tie game')
         else :
-            logging.info('game over, player %d wins' % winner)
+            logging.info('game over, %s wins' % self.player_display(winner - 1))
         return winner
 
 def make_player(s) :
@@ -311,8 +318,8 @@ def tournament(n,seed,player_names) :
                 game_num += 1
                 logging.info('playing game %d between %s (player 1) and %s (player 2) on game board %s ...' % (game_num,p1,p2,game_boards[r]))
                 game = Game()
-                game.new_game(game_boards[r])
-                result = game.play_game(players[p1],players[p2])
+                game.new_game(game_boards[r],((p1,players[p1]),(p2,players[p2])))
+                result = game.play_game()
                 if not results.has_key((p1,p2)) :
                     results[(p1,p2)] = []
                 results[(p1,p2)].append(result)
@@ -339,9 +346,9 @@ def single_game(player_name_1,player_name_2,tiles = None) :
     p2 = make_player(player_name_2)
     logging.info('playing game between %s (player 1) and %s (player 2) ...' % (player_name_1,player_name_2))
     game = Game()
-    game.new_game(tiles)
+    game.new_game(tiles,((player_name_1,p1),(player_name_2,p2)))
     game.debug = True
-    result = game.play_game(p1,p2)
+    result = game.play_game()
     if 0 == result :
         logging.info('tie game')
     if 1 == result :
