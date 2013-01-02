@@ -65,12 +65,10 @@ class Game :
         return word in g_sowpods
 
     @classmethod
-    def generate_board(cls,rng = None) :
-        if None == rng :
-            rng = random.Random()
+    def generate_board(cls) :
         tiles = ''
         for i in range(25) :
-            tiles += rng.choice(Game.TILES_LETTER_FREQ)
+            tiles += random.choice(Game.TILES_LETTER_FREQ)
         return tiles
         
     def dump(self) :
@@ -290,7 +288,7 @@ def make_player(s) :
     return f
 
 def tournament(n,seed,player_names) :
-    rng = random.Random(seed)
+    random.seed(seed)
     players = {}
     for i in player_names :
         player_id = 'p%d__%s' % (len(players) + 1,i)
@@ -300,7 +298,7 @@ def tournament(n,seed,player_names) :
     logging.info('generating game boards ...')
     game_boards = []
     for i in range(n) :
-        game_boards.append(Game.generate_board(rng))
+        game_boards.append(Game.generate_board())
     results = {}
     scores = {}
     for r in range(n) :
