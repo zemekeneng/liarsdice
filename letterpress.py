@@ -237,7 +237,7 @@ class Game :
             elapsed = time.time() - started
             self.clocks[whose_move] += elapsed
             if Game.MAX_TIME_PER_GAME < self.clocks[whose_move] :
-                logging.info('%s took too long, disqualifying ...' % (self,player_display(whose_move),))
+                logging.info('%s took too long, disqualifying ...' % (self.player_display(whose_move),))
                 if not self.debug :
                     disqualified = whose_move
                 break
@@ -318,7 +318,7 @@ def tournament(n,seed,player_names) :
                 if p1 == p2 :
                     continue
                 game_num += 1
-                logging.info('playing game %d between %s (player 1) and %s (player 2) on game board %s ...' % (game_num,p1,p2,game_boards[r]))
+                logging.info('playing game %d between %s (player 0) and %s (player 1) on game board %s ...' % (game_num,p1,p2,game_boards[r]))
                 game = Game()
                 game.new_game(game_boards[r],((p1,players[p1]),(p2,players[p2])))
                 result = game.play_game()
@@ -348,7 +348,7 @@ def single_game(player_name_1,player_name_2,tiles = None) :
     p1 = make_player(player_name_1)
     logging.info('making player %s ...' % player_name_2)
     p2 = make_player(player_name_2)
-    logging.info('playing game between %s (player 1) and %s (player 2) ...' % (player_name_1,player_name_2))
+    logging.info('playing game between %s (player 0) and %s (player 1) ...' % (player_name_1,player_name_2))
     game = Game()
     game.new_game(tiles,((player_name_1,p1),(player_name_2,p2)))
     game.debug = True
