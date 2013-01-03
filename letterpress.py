@@ -298,12 +298,14 @@ def tournament(n,seed,player_names) :
     random.seed(seed)
     players = {}
     scores = {}
+    clocks = {}
     for i in player_names :
         player_id = 'p%d__%s' % (len(players) + 1,i)
         logging.info('making player %s ...' % player_id)
         p = make_player(i)
         players[player_id] = p
         scores[player_id] = 0
+        clocks[player_id] = 0.0
     logging.info('generating game boards ...')
     game_boards = []
     for i in range(n) :
@@ -324,6 +326,8 @@ def tournament(n,seed,player_names) :
                     results[(p1,p2)] = []
                 results[(p1,p2)].append(result)
                 winner = None
+                clocks[p1] += game.clocks[0]
+                clocks[p2] += game.clocks[1]
                 if 1 == result :
                     winner = p1
                 if 2 == result :
@@ -335,7 +339,7 @@ def tournament(n,seed,player_names) :
         k = scores.keys()
         k.sort(key = lambda x : scores[x],reverse = True)
         for i in k :
-            logging.info('SCORE\tround %d of %d\t%s\t%d' % (r + 1,n,i,scores[i]))
+            logging.info('SCORE\tround %d of %d\t%s\t%d\t%.2f' % (r + 1,n,i,scores[i],clocks[i] / float(game_num)))
         logging.info('SCORE')
     return results
 
