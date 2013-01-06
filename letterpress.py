@@ -19,16 +19,16 @@ player_my_algo, using seed "seed":
 
 See player_test.py for documentation on how to write a player.
 '''
+ 
+# maximum allowed time per game per player
+#
+MAX_TIME_PER_GAME = 60
 
 import sys,logging,os,random,time,cPickle
 
 g_sowpods = None
 
 class Game :
-
-    # maximum allowed time per game per player
-    #
-    MAX_TIME_PER_GAME = 60
 
     # this distribution is calculated from the square root of the observed frequency in sowpods
     #
@@ -65,8 +65,10 @@ class Game :
         global g_sowpods
         if None == g_sowpods :
             g_sowpods = {}
+            logging.info('loading sowpods in ref ...')
             for i in file('sowpods.txt').readlines() :
                 g_sowpods[i[:-1]] = 1
+            logging.info('finished loading sowpods in ref')
         return word in g_sowpods
 
     @classmethod
@@ -79,24 +81,29 @@ class Game :
     def player_display(self,i) :
         return 'player %d (%s)' % (i,self.players[i][0])
 
-    def dump(self) :
+    @classmethod
+    def dump_game(cls,tiles,moves,colors) :
         canvas = []
         for y in range(5) :
             board_pic = ''
             colors_pic = ''
             for x in range(5) :
                 z = (y * 5) + x
-                board_pic += self.tiles[z]
-                colors_pic += '.12'[self.colors[z]]
+                board_pic += tiles[z]
+                colors_pic += '.12'[colors[z]]
             canvas.append(board_pic + ' ' + colors_pic)
         m = []
-        for i in self.moves :
+        for i in moves :
             if None == i :
                 m.append('PASS')
             else :
-                m.append('%s (%s)' % (''.join(map(lambda x : self.tiles[x],i)),i))
+                m.append('%s %s' % (''.join(map(lambda x : tiles[x],i)),i))
         t = ', '.join(m)
         canvas.append(t)
+        return canvas
+
+    def dump(self) :
+        canvas = Game.dump_game(self.tiles,self.moves,self.colors)
         canvas.append('%s: %d, %s: %d' % (self.player_display(0),len(filter(lambda x : x == 1,self.colors)),self.player_display(1),len(filter(lambda x : x == 2,self.colors))))
         return canvas
 
@@ -215,11 +222,12 @@ class Game :
         
             whose_move = len(self.moves) % 2
             for i in self.dump() :
-                logging.debug(i)
+                logging.info(i)
             
             # get the player's move
             #
             started = time.time()
+            logging.info('calling %s to get move ...' % self.player_display(whose_move))
             if self.debug :
                 move = self.players[whose_move][1](self.tiles[:],self.moves[:],self.colors[:])
                 logging.info("move: %s" % str(move))
@@ -227,6 +235,8 @@ class Game :
                 try :
                     move = self.players[whose_move][1](self.tiles[:],self.moves[:],self.colors[:])
                     logging.info("move: %s" % str(move))
+                except KeyboardInterrupt :
+                    raise
                 except :
                     logging.info('%s threw an exception ("%s"), disqualifying ...' % (self.player_display(whose_move),str(sys.exc_info()[:2])))
                     disqualified = whose_move
@@ -335,7 +345,7 @@ def tournament(n,seed,player_names) :
                 if not scores.has_key(winner) :
                     scores[winner] = 0
                 scores[winner] += 1
-                logging.info('RESULT\t%d, %d\t%s\t%s\t%s\t%d' % (game_num,r,p1,p2,game_boards[r],result))
+                logging.info('RESULT\tgame:%d\tround:%d\t%s\t%s\t%s\t%d\t%.2f\t%.2f' % (game_num,r,p1,p2,game_boards[r],result,game.clocks[0],game.clocks[1]))
         k = scores.keys()
         k.sort(key = lambda x : scores[x],reverse = True)
         for i in k :
