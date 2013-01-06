@@ -20,10 +20,6 @@ player_my_algo, using seed "seed":
 See player_test.py for documentation on how to write a player.
 '''
  
-# maximum allowed time per game per player
-#
-MAX_TIME_PER_GAME = 60
-
 import sys,logging,os,random,time,cPickle
 
 g_sowpods = None
@@ -33,6 +29,10 @@ class Game :
     # this distribution is calculated from the square root of the observed frequency in sowpods
     #
     TILES_LETTER_FREQ = 'aaaaaabbbccccddddeeeeeeeeffgggghhhiiiiiiijkklllllmmmmnnnnnnooooooppppqrrrrrrsssssssttttttuuuuvvwwxyyyz'
+
+    # maximum allowed time per game per player
+    #
+    MAX_TIME_PER_GAME = 60
 
     def __init__(self) :
         pass
