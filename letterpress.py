@@ -32,7 +32,7 @@ class Game :
 
     # maximum allowed time per game per player
     #
-    MAX_TIME_PER_GAME = 60
+    MAX_TIME_PER_GAME = 90
 
     def __init__(self) :
         pass
