@@ -6,36 +6,136 @@
 HELP = '''\
 usage:
 
-    $ python liarsdice.py games 10 my_robot.get_play his_robot.get_play robots.dummy
+    $ python liarsdice.py play 10 my_robot.get_play his_robot.get_play robots.dummy
 
 Play 10 games of liar's dice between get_play() in my_robot.py, get_play in 
 his_robot.py, and dummy() in robots.py.
 '''
- 
+
 import sys,logging,os,random,time
 
-def nyi() :
-    raise NotImpementedError
+def play_game(players) :
+    
+    # first, set up the players left in the game
+    #
+    in_game = players.keys()
+    random.shuffle(in_game)
+    whose_move = 0
+    dice = {}
+    for i in in_game :
+        dice[i] = 5
 
-class Game :
+    # keep playing hands until only one player left
+    #
+    while 1 != len(in_game) :
 
-    def __init__(self) :
-        self.playes = None
+        # everyone rolls their dice
+        #
+        hands = {}
+        for i in in_game :
+            hands[i] = []
+            logging.debug('rolling %d dice for "%s" ...' % (dice[i],i))
+            for j in range(dice[i]) :
+                hands[i].append(random.choice((1,2,3,4,5,6)))
+        history = []
         
-    def new_game(self,players) :
-        self.players = players
+        # keep playing hands until someone calls liar
+        #
+        while 1 :
+            
+            # build history
+            #
+            history_str = ','.join(map(lambda x : '%s:%d' % (x[0],x[1]),history))
 
-    def serialize(self) :   
-        nyi()
+            # build hands
+            #
+            hands_str = '%s:%s' % (in_game[whose_move],''.join(map(lambda x : str(x),hands[in_game[whose_move]])))
+            for i in in_game :
+                if i != in_game[whose_move] :
+                    hands_str += ',%s:%s' % (i,'.' * dice[i])
 
-    def deserialize(self,s) :
-        nyi()
+            # get the play
+            #
+            play = 0
+            if 1 :
+                play = int(players[in_game[whose_move]](in_game[whose_move],hands_str,history_str))
+            #except :
+             #   logging.warn('caught exception "%s" calling "%s"' % (sys.exc_info()[1],in_game[whose_move]))
+            logging.info('player "%s" played "%d"' % (in_game[whose_move],play))
 
-    def dump(self) :
-        nyi()
+            # check for legal moves
+            # 
+            if 0 != play :
+                face = play % 10
+                quantity = play / 10
+                if face <= 0 or face > 6 or quantity <= 0 or quantity > (len(players) * 5) :
+                    logging.info('illegal move, assuming calling liar')
+                    play = 0
+                elif 0 != len(history) :
+                    last_play = history[-1][1]
+                    last_face = last_play % 10
+                    last_quantity = last_play / 10
+                    if (quantity < last_quantity) or ((quantity == last_quantity) and (face <= last_face)) :
+                        logging.info('not increasing play, assuming calling liar')
+                        play = 0
 
-    def play_game(self) :
-        return random.choice(self.players.keys())
+            # remember the play
+            #
+            history.append((whose_move,play))
+            
+            # if it's a call, or an illegal move, or a bet less than the last play
+            # treat it as a call and check the bluff
+            #
+            if 0 == play :
+                
+                # if it's the first play, they lose
+                #
+                if 1 == len(history) :
+                    logging.debug('called liar before any plays')
+                    loser = in_game[whose_move]
+
+                else :
+                    
+                    # count dice
+                    #
+                    common_dice = [0,0,0,0,0,0]
+                    for i in in_game :
+                        for j in hands[i] :
+                            common_dice[j - 1] += 1
+
+                    logging.debug('hands: %s' % str(hands))
+                    logging.debug('common dice: %s' % str(common_dice))
+
+                    last_play = history[-2][1]
+                    last_face = last_play % 10
+                    last_quantity = last_play / 10
+                    if common_dice[last_face - 1] >= last_quantity :
+                        logging.debug('last play valid')
+                        loser = in_game[whose_move]
+                    else :
+                        logging.debug('last play is NOT valid')
+                        loser = in_game[history[-2][0]]
+
+                # remove loser's die, bump them if they're out of dice,
+                # and start over again
+                #
+                dice[loser] -= 1
+                if 0 == dice[loser] :
+                    in_game.remove(loser)
+                break
+            
+            # otherwise, just add it to the history and continue
+            #
+            else :
+                whose_move += 1
+                if whose_move == len(in_game) :
+                    whose_move = 0
+
+            # continue
+            #
+            continue
+
+    return in_game[0]
 
 def make_player(s) :
     filename = s
@@ -55,8 +155,8 @@ def play_games(n,seed,player_names) :
     players = {}
     scores = {}
     for i in player_names :
-        player_id = 'p%d__%s' % (len(players) + 1,i)
-        logging.info('making player %s ...' % player_id)
+        player_id = chr(ord('A') + len(players))
+        logging.info('making player %s (%s) ...' % (player_id,i))
         p = make_player(i)
         players[player_id] = p
         scores[player_id] = 0
@@ -64,9 +164,7 @@ def play_games(n,seed,player_names) :
     for r in range(n) :
         game_num += 1
         logging.info('playing game %d ...' % (game_num,))
-        game = Game()
-        game.new_game(players)
-        winner = game.play_game()
+        winner = play_game(players)
         scores[winner] += 1
         logging.info('RESULT\tgame:%d\twinner:%s' % (game_num,winner))
         k = scores.keys()
@@ -90,7 +188,7 @@ def main(argv) :
         print HELP
         sys.exit()
 
-    elif 'games' == c :
+    elif 'play' == c :
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
         play_games(n,''.join(sys.argv),player_names)
