@@ -27,11 +27,11 @@ You can write a robot by implementing the function:
         encoding the call, like, 23 for two threes,
         105 for 10 fives, or 0 for "liar".
 
-For a quick start:
+For a quick start to play against the computer:
 
     % git clone git://github.com/colinmsaunders/liarsdice.git
     % cd liarsdice
-    % python liarsdice.py games 1 players.p_human players.p_dummy
+    % python liarsdice.py human
 
 See [robot.py][2] for dox on how to write a robot.
 
