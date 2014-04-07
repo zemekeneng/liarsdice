@@ -8,7 +8,14 @@ def p_caller(me,hands,history) :
 
 def p_human(me,hands,history) : 
     print 'You are "%s".   Hands: %s    History: %s' % (me,hands,history)
-    print 'Enter move (0 to call, or 23 for two threes, 106 for ten sixes):'
+    if 0 != len(history) :
+        prev = history.split(',')
+        last_player,last_call = prev[-1].split(':')
+        if 0 == int(last_call) :
+            print 'Hand over. Press return to continue ...'
+            raw_input()
+            return
+    print 'Enter move (e.g., "0" to call, "23" for two threes, "106" for ten sixes) :'
     s = raw_input()
     return int(s)
 

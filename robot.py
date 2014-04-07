@@ -30,6 +30,9 @@
 #        Your function should return an integer 
 #        encoding the call, like, 23 for two threes,
 #        105 for 10 fives, or 0 for "liar".
+#
+# see players.py for some sample players, or, copy this file and implement the 
+# following function
 
 def get_move(me,hands,history) :
     return 0
