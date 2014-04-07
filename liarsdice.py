@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 # liarsdice.py -- play liarsdice
-#
 
 HELP = '''\
 usage:
@@ -25,18 +24,34 @@ def play_game(players) :
     for i in in_game :
         dice[i] = 5
 
+    logging.info('new game between %s' % ', '.join(in_game))
+
     # keep playing hands until only one player left
     #
-    while 1 != len(in_game) :
+    winner = None
+    while None == winner :
+
+        for i in in_game :
+            if 0 != dice[i] :
+                if None != winner :
+                    winner = None
+                    break
+                winner = i
+        if None != winner :
+            break
 
         # everyone rolls their dice
         #
+        logging.info('new hand between %s' % ', '.join(filter(lambda x : 0 != dice[x],in_game)))
         hands = {}
         for i in in_game :
+            if 0 == dice[i] :
+                continue
             hands[i] = []
             logging.debug('rolling %d dice for "%s" ...' % (dice[i],i))
             for j in range(dice[i]) :
                 hands[i].append(random.choice((1,2,3,4,5,6)))
+        logging.info('hands: %s' % str(filter(lambda x : 0 != dice[x[0]],hands.items())))
         history = []
         
         # keep playing hands until someone calls liar
@@ -56,11 +71,12 @@ def play_game(players) :
 
             # get the play
             #
+            logging.info('getting move from "%s"' % in_game[whose_move])
             play = 0
-            if 1 :
+            try :
                 play = int(players[in_game[whose_move]](in_game[whose_move],hands_str,history_str))
-            #except :
-             #   logging.warn('caught exception "%s" calling "%s"' % (sys.exc_info()[1],in_game[whose_move]))
+            except :
+                logging.warn('caught exception "%s" calling "%s"' % (sys.exc_info()[1],in_game[whose_move]))
             logging.info('player "%s" played "%d"' % (in_game[whose_move],play))
 
             # check for legal moves
@@ -100,6 +116,8 @@ def play_game(players) :
                     #
                     common_dice = [0,0,0,0,0,0]
                     for i in in_game :
+                        if 0 == dice[i] :
+                            continue
                         for j in hands[i] :
                             common_dice[j - 1] += 1
 
@@ -119,23 +137,31 @@ def play_game(players) :
                 # remove loser's die, bump them if they're out of dice,
                 # and start over again
                 #
+                logging.debug('removing a die from "%s"' % loser)
                 dice[loser] -= 1
                 if 0 == dice[loser] :
-                    in_game.remove(loser)
+                    logging.debug('"%s" has no dice' % loser)
+                    if loser == in_game[whose_move] :
+                        logging.debug('and it\'s his move')
+                        while 1 :
+                            whose_move += 1
+                            if whose_move == len(in_game) :
+                                whose_move = 0
+                            if 0 != dice[in_game[whose_move]] :
+                                break
                 break
-            
+                    
             # otherwise, just add it to the history and continue
             #
             else :
-                whose_move += 1
-                if whose_move == len(in_game) :
-                    whose_move = 0
+                while 1 :
+                    whose_move += 1
+                    if whose_move == len(in_game) :
+                        whose_move = 0
+                    if 0 != dice[in_game[whose_move]] :
+                        break
 
-            # continue
-            #
-            continue
-
-    return in_game[0]
+    return winner
 
 def make_player(s) :
     filename = s
@@ -154,8 +180,10 @@ def play_games(n,seed,player_names) :
     random.seed(seed)
     players = {}
     scores = {}
+    names = {}
     for i in player_names :
         player_id = chr(ord('A') + len(players))
+        names[player_id] = i
         logging.info('making player %s (%s) ...' % (player_id,i))
         p = make_player(i)
         players[player_id] = p
@@ -170,7 +198,7 @@ def play_games(n,seed,player_names) :
         k = scores.keys()
         k.sort(key = lambda x : scores[x],reverse = True)
         for i in k :
-            logging.info('SCORE\tgame %d of %d\t%s\t%d' % (game_num,n,i,scores[i]))
+            logging.info('SCORE\tgame %d of %d\t%s\t%s\t%d' % (game_num,n,i,names[i],scores[i]))
     return scores
 
 def main(argv) :
