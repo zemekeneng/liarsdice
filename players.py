@@ -2,11 +2,12 @@
 
 import random,logging
 
-def p_caller(me,hands,history,rules) :
-    'always call'
+def p_caller(me,hands,history) :
+    ''' always call '''
     return 0
 
-def p_human(me,hands_str,history,rules) : 
+def p_human(me,hands_str,history) : 
+    ''' play against the computer '''
     logging.info('You are player "%s".' % me)
     logging.info('History: %s' % history)
     logging.info('Hands: %s' % hands_str)
@@ -27,7 +28,7 @@ def p_human(me,hands_str,history,rules) :
     logging.info('*' * 50)
     return x
 
-def p_bumper(me,hands,history,rules) :
+def p_bumper(me,hands,history) :
     ''' just bump previous call '''
     if 0 == len(history) :
         return 11   # "one one"
@@ -43,7 +44,7 @@ def p_bumper(me,hands,history,rules) :
         return ((last_quantity + 1) * 10) + 1
     return (last_quantity * 10) + (last_face + 1)
 
-def p_simpleton(me,hands,history,rules) :
+def p_simpleton(me,hands,history) :
     ''' play lowest call i can amongst faces i have '''
     hands = hands.split(',')
     my_hand = {}
@@ -82,7 +83,7 @@ def p_simpleton(me,hands,history,rules) :
                 return (quantity * 10) + face
         quantity += 1
 
-def p_conservative(me,hands,history,rules) :
+def p_conservative(me,hands,history) :
     ''' only play things i have, otherwise call '''
     hands = hands.split(',')
     my_hand = {}

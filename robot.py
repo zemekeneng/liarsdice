@@ -9,7 +9,7 @@
 #
 # The get_play() prototype looks like:
 #
-#   def get_play(me,hands,history,rules)
+#   def get_play(me,hands,history)
 #
 #       me is the id of your player. eg, "A"
 #
@@ -26,9 +26,6 @@
 #        This means, player "A" called "two threes",
 #        player "B" called "three threes", player C 
 #        called "liar".
-#
-#        rules is a bitmask containing the rules of the 
-#        current game, you can ignore this.
 #
 #        Your function should return an integer 
 #        encoding the call, like, 23 for two threes,

@@ -43,7 +43,7 @@ def make_player(s,catch_exceptions) :
     f = getattr(m,attr)
     return f
 
-def play_games(n,seed,player_names,rules,catch_exceptions) :
+def play_games(n,seed,player_names,catch_exceptions) :
     random.seed(seed)
     players = {}
     scores = {}
@@ -59,7 +59,7 @@ def play_games(n,seed,player_names,rules,catch_exceptions) :
     for r in range(n) :
         game_num += 1
         logging.debug('playing game %d ...' % (game_num,))
-        winner = liarsdice.play_game(players,rules,catch_exceptions)
+        winner = liarsdice.play_game(players,catch_exceptions)
         scores[winner] += 1
         logging.debug('RESULT\tgame:%d\twinner:%s' % (game_num,winner))
         k = scores.keys()
@@ -90,19 +90,19 @@ def main(argv) :
         opponent = 'players.p_simpleton'
         if 3 == len(argv) :
             opponent = sys.argv[2]
-        play_games(1,time.time(),('players.p_human',opponent),liarsdice.RULES_DEFAULT,False)
+        play_games(1,time.time(),('players.p_human',opponent),False)
 
     elif 'play' == c :
         logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
-        play_games(n,''.join(player_names),player_names,liarsdice.RULES_DEFAULT,False)
+        play_games(n,''.join(player_names),player_names,False)
   
     elif 'tournament' == c :
         logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
-        play_games(n,''.join(player_names),player_names,liarsdice.RULES_DEFAULT,True)
+        play_games(n,''.join(player_names),player_names,True)
     
     else :
         logging.error('i don\'t know how to "%s". look at the source' % c)

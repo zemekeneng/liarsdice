@@ -1,8 +1,10 @@
 # liarsdice.py -- the liar's dice logic functions, you can import this in your robots
 
-# the variation of liars dice (4 6-sided dies)
+# the variation of liars dice (4 6-sided dies, ones not wild)
 #
-RULES_DEFAULT   = (4 << 4) | 6
+RULES_DICE          = 4
+RULES_FACES         = 6
+RULES_ONES_WILD     = 0
 
 STR_FACE_SINGLE = {
     1   : 'one',
@@ -52,12 +54,6 @@ def verbose_play(play) :
     else :
         return '%s %s' % (STR_QUANTITY.get(play / 10,'%d' % (play / 10)),STR_FACE_PLURAL.get(play % 10,'???'))
 
-def get_rules_dice(rules) :
-    return (rules >> 4) & 15
-
-def get_rules_faces(rules) :
-    return (rules >> 0) & 15
-
 def parse_history(history_str) :
     a = []
     h = history_str.split(';')
@@ -84,7 +80,7 @@ def count_dice(hands_str) :
         t += len(i[1])
     return t
 
-def play_game(players,rules,catch_exceptions) :
+def play_game(players,catch_exceptions) :
     
     # first, set up the players left in the game
     #
@@ -92,8 +88,8 @@ def play_game(players,rules,catch_exceptions) :
     random.shuffle(seats)
     whose_move = 0
     cups = {}
-    dice = get_rules_dice(rules)
-    faces = get_rules_faces(rules)
+    dice = RULES_DICE
+    faces = RULES_FACES
     for i in seats :
         cups[i] = dice
 
@@ -158,7 +154,7 @@ def play_game(players,rules,catch_exceptions) :
             #
             play = 0
             try :
-                play = int(players[seats[whose_move]](seats[whose_move],hands_str,history_str,rules))
+                play = int(players[seats[whose_move]](seats[whose_move],hands_str,history_str))
             except KeyboardInterrupt :
                 raise
             except :
@@ -242,7 +238,7 @@ def play_game(players,rules,catch_exceptions) :
                     logging.info('player %s has no dice left' % loser)
                 for i in seats :
                     try :
-                        players[i](i,hands_str,history_str,rules)
+                        players[i](i,hands_str,history_str)
                     except KeyboardInterrupt :
                         raise
                     except :
