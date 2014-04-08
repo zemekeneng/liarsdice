@@ -58,7 +58,33 @@ def get_rules_dice(rules) :
 def get_rules_faces(rules) :
     return (rules >> 0) & 15
 
-def play_game(players,rules) :
+def parse_history(history_str) :
+    a = []
+    h = history_str.split(';')
+    for i in h :
+        a.append(i.split(':'))
+    return a
+
+def parse_hands(hands_str) :
+    a = []
+    h = hands_str.split(';')
+    for i in h :
+        a.append(i.split(':'))
+    return a
+
+def my_hand(me,hands_str) :
+    for i in parse_hands(hands_str) :
+        if i[0] == me :
+            return i[1]
+    return None
+
+def count_dice(hands_str) :
+    t = 0
+    for i in parse_hands(hands_str) :
+        t += len(i[1])
+    return t
+
+def play_game(players,rules,catch_exceptions) :
     
     # first, set up the players left in the game
     #
@@ -136,6 +162,8 @@ def play_game(players,rules) :
             except KeyboardInterrupt :
                 raise
             except :
+                if not catch_exceptions :
+                    raise
                 logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[whose_move]))
             logging.info('player %s calls "%s"' % (seats[whose_move],verbose_play(play)))
 
@@ -194,12 +222,11 @@ def play_game(players,rules) :
                     logging.info('common dice: %s' % ', '.join(map(lambda x : verbose_play((x[1] * 10) + x[0]),common_dice.items())))
 
                     if common_dice.get(last_face,0) >= last_quantity :
-                        logging.debug('%s\'s last play was %d %d\'s, CORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,whose_move))
+                        logging.debug('%s\'s last play was %d %d\'s, CORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,seats[whose_move]))
                         loser = seats[whose_move]
                     else :
                         logging.debug('%s\'s last play was %d %d\'s, INCORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,seats[history[-2][0]]))
                         loser = seats[history[-2][0]]
-
 
                 # show everyone the result
                 #
@@ -212,6 +239,8 @@ def play_game(players,rules) :
                     except KeyboardInterrupt :
                         raise
                     except :
+                        if not catch_exceptions :
+                            raise
                         logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],i))
   
                 # remove loser's die, bump them if they're out of dice,

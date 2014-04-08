@@ -17,26 +17,33 @@ usage:
     his_robot.py, and dummy() in robots.py.
     
         $ python main.py play 10 my_robot.get_play his_robot.get_play robots.dummy
+
+    To run a tournament with the above with seed "frog":
+        
+        $ python main.py tournament frog 10 my_robot.get_play his_robot.get_play robots.dummy
+
 '''
 
 import sys,logging,random,time
 
 import liarsdice
 
-def make_player(s) :
+def make_player(s,catch_exceptions) :
     filename = s
     attr = 'get_move'
     if -1 != s.find('.') :
         filename,attr = s.split('.')
     try :
         m = __import__(filename)
-    except :
+    except e :
+        if not catch_exceptions :
+            raise
         logging.warn('couldn\'t import "%s"' % filename)
         return None
     f = getattr(m,attr)
     return f
 
-def play_games(n,seed,player_names,rules) :
+def play_games(n,seed,player_names,rules,catch_exceptions) :
     random.seed(seed)
     players = {}
     scores = {}
@@ -45,14 +52,14 @@ def play_games(n,seed,player_names,rules) :
         player_id = chr(ord('A') + len(players))
         names[player_id] = i
         logging.info('making player %s (%s) ...' % (player_id,i))
-        p = make_player(i)
+        p = make_player(i,catch_exceptions)
         players[player_id] = p
         scores[player_id] = 0
     game_num = 0
     for r in range(n) :
         game_num += 1
         logging.debug('playing game %d ...' % (game_num,))
-        winner = liarsdice.play_game(players,rules)
+        winner = liarsdice.play_game(players,rules,catch_exceptions)
         scores[winner] += 1
         logging.debug('RESULT\tgame:%d\twinner:%s' % (game_num,winner))
         k = scores.keys()
@@ -83,14 +90,20 @@ def main(argv) :
         opponent = 'players.p_simpleton'
         if 3 == len(argv) :
             opponent = sys.argv[2]
-        play_games(1,time.time(),('players.p_human',opponent),liarsdice.RULES_DEFAULT)
+        play_games(1,time.time(),('players.p_human',opponent),liarsdice.RULES_DEFAULT,False)
 
     elif 'play' == c :
+        logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
+        n = int(sys.argv[2])
+        player_names = sys.argv[3:]
+        play_games(n,''.join(player_names),player_names,liarsdice.RULES_DEFAULT,False)
+  
+    elif 'tournament' == c :
         logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
-        play_games(n,''.join(sys.argv),player_names,liarsdice.RULES_DEFAULT)
-
+        play_games(n,''.join(player_names),player_names,liarsdice.RULES_DEFAULT,True)
+    
     else :
         logging.error('i don\'t know how to "%s". look at the source' % c)
         print HELP

@@ -6,14 +6,13 @@ def p_caller(me,hands,history,rules) :
     'always call'
     return 0
 
-def p_human(me,hands,history,rules) : 
+def p_human(me,hands_str,history,rules) : 
     logging.info('You are player "%s".' % me)
     logging.info('History: %s' % history)
-    logging.info('Hands: %s' % hands)
+    logging.info('Hands: %s' % hands_str)
     if 0 != len(history) :
-        prev = history.split(',')
-        last_player,last_call = prev[-1].split(':')
-        if 0 == int(last_call) :
+        last_play = history.split(',')[-1]
+        if 0 == int(last_play.split(':')[1]) :
             logging.info('Hand over. Press return to continue ...')
             raw_input()
             return
@@ -25,8 +24,7 @@ def p_bumper(me,hands,history,rules) :
     ''' just bump previous call '''
     if 0 == len(history) :
         return 11   # "one one"
-    prev = history.split(',')
-    last_play = prev[-1]
+    last_play = history.split(',')[-1]
     last_player,last_call = last_play.split(':')
     last_call = int(last_call)
     # ignore showdown
@@ -41,21 +39,23 @@ def p_bumper(me,hands,history,rules) :
 def p_simpleton(me,hands,history,rules) :
     ''' play lowest call i can amongst faces i have '''
     hands = hands.split(',')
-    my_hand = [0,0,0,0,0,0]
+    my_hand = {}
+    my_max_face = 0
     for i in hands :
         player,dice = i.split(':')
         if me == player :
             for j in dice :
-                my_hand[int(j) - 1] += 1
+                j = int(j)
+                if j > my_max_face :
+                    my_max_face = j
+                my_hand[j] = my_hand.get(j,0) + 1
             break
-
     if 0 == len(history) :
         last_call = 0
         last_face = 0
         last_quantity = 0
     else :
-        prev = history.split(',')
-        last_play = prev[-1]
+        last_play = history.split(',')[-1]
         last_player,last_call = last_play.split(':')
         last_call = int(last_call)
         if 0 == last_call :
@@ -68,8 +68,8 @@ def p_simpleton(me,hands,history,rules) :
     else :
         quantity = last_quantity
     while 1 :
-        for face in (1,2,3,4,5,6) :
-            if 0 == my_hand[face - 1] :
+        for face in range(1,my_max_face + 1) :
+            if 0 == my_hand.get(face,0) :
                 continue
             if quantity > last_quantity or face > last_face :
                 return (quantity * 10) + face
@@ -78,12 +78,18 @@ def p_simpleton(me,hands,history,rules) :
 def p_conservative(me,hands,history,rules) :
     ''' only play things i have, otherwise call '''
     hands = hands.split(',')
-    my_hand = [0,0,0,0,0,0]
+    my_hand = {}
+    my_max_face = 0
+    my_dice = 0
     for i in hands :
         player,dice = i.split(':')
         if me == player :
             for j in dice :
-                my_hand[int(j) - 1] += 1
+                my_dice += 1
+                j = int(j)
+                if j > my_max_face :
+                    my_max_face = j
+                my_hand[j] = my_hand.get(j,0) + 1
             break
 
     if 0 == len(history) :
@@ -91,8 +97,7 @@ def p_conservative(me,hands,history,rules) :
         last_face = 0
         last_quantity = 0
     else :
-        prev = history.split(',')
-        last_play = prev[-1]
+        last_play = history.split(',')[-1]
         last_player,last_call = last_play.split(':')
         last_call = int(last_call)
         if 0 == last_call :
@@ -105,12 +110,12 @@ def p_conservative(me,hands,history,rules) :
     else :
         quantity = last_quantity
     while 1 :
-        for face in (1,2,3,4,5,6) :
-            if quantity > my_hand[face - 1] :
+        for face in range(1,my_max_face + 1) :
+            if quantity > my_hand.get(face,0) :
                 continue
             if quantity > last_quantity or face > last_face :
                 return (quantity * 10) + face
         quantity += 1
-        if quantity > 5 :
+        if quantity > my_dice :
             return 0
 
