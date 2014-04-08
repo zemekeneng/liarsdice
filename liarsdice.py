@@ -49,10 +49,10 @@ def verbose_play(play) :
         pass
     elif 0 == play :
         return 'LIAR!'
-    elif 1 == (play / 10) :
+    elif 1 == (play // 10) :
         return 'one %s' % STR_FACE_SINGLE.get(play % 10,'???')
     else :
-        return '%s %s' % (STR_QUANTITY.get(play / 10,'%d' % (play / 10)),STR_FACE_PLURAL.get(play % 10,'???'))
+        return '%s %s' % (STR_QUANTITY.get(play // 10,'%d' % (play // 10)),STR_FACE_PLURAL.get(play % 10,'???'))
 
 def parse_history(history_str) :
     a = []
@@ -167,14 +167,14 @@ def play_game(players,catch_exceptions) :
             # 
             if 0 != play :
                 face = play % 10
-                quantity = play / 10
+                quantity = play // 10
                 if face <= 0 or face > faces or quantity <= 0 or quantity > (len(players) * dice) :
                     logging.info('illegal move, assuming calling liar')
                     play = 0
                 elif 0 != len(history) :
                     last_play = history[-1][1]
                     last_face = last_play % 10
-                    last_quantity = last_play / 10
+                    last_quantity = last_play // 10
                     if (quantity < last_quantity) or ((quantity == last_quantity) and (face <= last_face)) :
                         logging.info('not increasing play, assuming calling liar')
                         play = 0
@@ -208,7 +208,7 @@ def play_game(players,catch_exceptions) :
  
                     last_play = history[-2][1]
                     last_face = last_play % 10
-                    last_quantity = last_play / 10
+                    last_quantity = last_play // 10
  
                     logging.debug('hands: %s' % str(hands))
                     logging.debug('common dice: %s' % str(common_dice))

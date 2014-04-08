@@ -39,7 +39,7 @@ def p_bumper(me,hands,history) :
     if 0 == last_call :
         return 0
     last_face = last_call % 10
-    last_quantity = last_call / 10
+    last_quantity = last_call // 10
     if 6 == last_face :
         return ((last_quantity + 1) * 10) + 1
     return (last_quantity * 10) + (last_face + 1)
@@ -69,7 +69,7 @@ def p_simpleton(me,hands,history) :
         if 0 == last_call :
             return 0
         last_face = last_call % 10
-        last_quantity = last_call / 10
+        last_quantity = last_call // 10
 
     if 0 == len(history) :
         quantity = 1
@@ -111,7 +111,7 @@ def p_conservative(me,hands,history) :
         if 0 == last_call :
             return 0
         last_face = last_call % 10
-        last_quantity = last_call / 10
+        last_quantity = last_call // 10
 
     if 0 == len(history) :
         quantity = 1
