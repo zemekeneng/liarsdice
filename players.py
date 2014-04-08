@@ -1,25 +1,27 @@
 # players.py -- some sample players
 
-import random
+import random,logging
 
-def p_caller(me,hands,history) :
+def p_caller(me,hands,history,rules) :
     'always call'
     return 0
 
-def p_human(me,hands,history) : 
-    print 'You are "%s".   Hands: %s    History: %s' % (me,hands,history)
+def p_human(me,hands,history,rules) : 
+    logging.info('You are player "%s".' % me)
+    logging.info('History: %s' % history)
+    logging.info('Hands: %s' % hands)
     if 0 != len(history) :
         prev = history.split(',')
         last_player,last_call = prev[-1].split(':')
         if 0 == int(last_call) :
-            print 'Hand over. Press return to continue ...'
+            logging.info('Hand over. Press return to continue ...')
             raw_input()
             return
-    print 'Enter move (e.g., "0" to call, "23" for two threes, "106" for ten sixes) :'
+    logging.info('Enter move (e.g., "0" to call, "23" for two threes, "106" for ten sixes) :')
     s = raw_input()
     return int(s)
 
-def p_bumper(me,hands,history) :
+def p_bumper(me,hands,history,rules) :
     ''' just bump previous call '''
     if 0 == len(history) :
         return 11   # "one one"
@@ -36,7 +38,7 @@ def p_bumper(me,hands,history) :
         return ((last_quantity + 1) * 10) + 1
     return (last_quantity * 10) + (last_face + 1)
 
-def p_simpleton(me,hands,history) :
+def p_simpleton(me,hands,history,rules) :
     ''' play lowest call i can amongst faces i have '''
     hands = hands.split(',')
     my_hand = [0,0,0,0,0,0]
@@ -73,7 +75,7 @@ def p_simpleton(me,hands,history) :
                 return (quantity * 10) + face
         quantity += 1
 
-def p_conservative(me,hands,history) :
+def p_conservative(me,hands,history,rules) :
     ''' only play things i have, otherwise call '''
     hands = hands.split(',')
     my_hand = [0,0,0,0,0,0]

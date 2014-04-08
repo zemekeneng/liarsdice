@@ -1,11 +1,11 @@
-liar's dice
+Liar's Dice
 ===========
 
 This is a game to pit [Liar's Dice][1] robots against each other.
 
 You can write a robot by implementing the function:
 
-    def get_move(me,hands,history) 
+    def get_move(me,hands,history,rules) 
 
         me is the id of your player. eg, "A"
 
@@ -23,6 +23,8 @@ You can write a robot by implementing the function:
         player "B" called "three threes", player C 
         called "liar".
 
+        rules contains the rules of the current game, you can ignore this.
+
         Your function should return an integer 
         encoding the call, like, 23 for two threes,
         105 for 10 fives, or 0 for "liar".
@@ -31,7 +33,7 @@ For a quick start to play against the computer:
 
     % git clone git://github.com/colinmsaunders/liarsdice.git
     % cd liarsdice
-    % python liarsdice.py human
+    % python main.py human
 
 See [robot.py][2] for dox on how to write a robot.
 
