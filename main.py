@@ -44,7 +44,7 @@ def play_games(n,seed,player_names,rules) :
     for i in player_names :
         player_id = chr(ord('A') + len(players))
         names[player_id] = i
-        logging.debug('making player %s (%s) ...' % (player_id,i))
+        logging.info('making player %s (%s) ...' % (player_id,i))
         p = make_player(i)
         players[player_id] = p
         scores[player_id] = 0
@@ -60,8 +60,8 @@ def play_games(n,seed,player_names,rules) :
         rank = 0
         for i in k :
             rank += 1
-            logging.debug('SCORE\tgame %d of %d\t#%d.\t%s\t%s\t%d' % (game_num,n,rank,i,names[i],scores[i]))
-        logging.debug('SCORE')
+            logging.info('SCORE\tgame %d of %d\t#%d.\t%s\t%s\t%d' % (game_num,n,rank,i,names[i],scores[i]))
+        logging.info('SCORE')
     return scores
 
 def main(argv) :
@@ -86,7 +86,7 @@ def main(argv) :
         play_games(1,time.time(),('players.p_human',opponent),liarsdice.RULES_DEFAULT)
 
     elif 'play' == c :
-        logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
+        logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
         play_games(n,''.join(sys.argv),player_names,liarsdice.RULES_DEFAULT)

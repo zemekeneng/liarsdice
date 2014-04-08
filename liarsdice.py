@@ -2,7 +2,7 @@
 
 # the variation of liars dice (4 6-sided dies)
 #
-RULES_DEFAULT   = (6 << 4) | 4
+RULES_DEFAULT   = (4 << 4) | 6
 
 STR_FACE_SINGLE = {
     1   : 'one',
@@ -93,7 +93,7 @@ def play_game(players,rules) :
         # everyone rolls their dice
         #
         logging.info('-' * 50)
-        logging.info('new hand between %s' % ', '.join(filter(lambda x : 0 != cups[x],seats)))
+        logging.info('new hand between %s with %s dice, respectfully' % (', '.join(filter(lambda x : 0 != cups[x],seats)),', '.join(map(lambda x : '%d' % cups[x],filter(lambda x : 0 != cups[x],seats)))))
         hands = {}
         for i in seats :
             if 0 == cups[i] :
@@ -145,14 +145,14 @@ def play_game(players,rules) :
                 face = play % 10
                 quantity = play / 10
                 if face <= 0 or face > faces or quantity <= 0 or quantity > (len(players) * dice) :
-                    logging.warn('illegal move, assuming calling liar')
+                    logging.info('illegal move, assuming calling liar')
                     play = 0
                 elif 0 != len(history) :
                     last_play = history[-1][1]
                     last_face = last_play % 10
                     last_quantity = last_play / 10
                     if (quantity < last_quantity) or ((quantity == last_quantity) and (face <= last_face)) :
-                        logging.warn('not increasing play, assuming calling liar')
+                        logging.info('not increasing play, assuming calling liar')
                         play = 0
 
             # remember the play
@@ -181,7 +181,11 @@ def play_game(players,rules) :
                             continue
                         for j in hands[i] :
                             common_dice[j] = common_dice.get(j,0) + 1
-
+ 
+                    last_play = history[-2][1]
+                    last_face = last_play % 10
+                    last_quantity = last_play / 10
+ 
                     logging.debug('hands: %s' % str(hands))
                     logging.debug('common dice: %s' % str(common_dice))
 
@@ -189,9 +193,6 @@ def play_game(players,rules) :
                     logging.info('hands: %s' % ', '.join(map(lambda x : '%s:%s' % (x,''.join(map(lambda y : str(y),hands[x]))),filter(lambda x : 0 != cups[x],seats))))
                     logging.info('common dice: %s' % ', '.join(map(lambda x : verbose_play((x[1] * 10) + x[0]),common_dice.items())))
 
-                    last_play = history[-2][1]
-                    last_face = last_play % 10
-                    last_quantity = last_play / 10
                     if common_dice.get(last_face,0) >= last_quantity :
                         logging.debug('%s\'s last play was %d %d\'s, CORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,whose_move))
                         loser = seats[whose_move]
