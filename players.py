@@ -15,10 +15,17 @@ def p_human(me,hands_str,history,rules) :
         if 0 == int(last_play.split(':')[1]) :
             logging.info('Hand over. Press return to continue ...')
             raw_input()
+            logging.info('*' * 50)
             return
     logging.info('Enter move (e.g., "0" to call, "23" for two threes, "106" for ten sixes) :')
     s = raw_input()
-    return int(s)
+    x = 0
+    try :
+        x = int(s)
+    except :
+        pass
+    logging.info('*' * 50)
+    return x
 
 def p_bumper(me,hands,history,rules) :
     ''' just bump previous call '''

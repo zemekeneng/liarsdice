@@ -228,11 +228,18 @@ def play_game(players,rules,catch_exceptions) :
                         logging.debug('%s\'s last play was %d %d\'s, INCORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,seats[history[-2][0]]))
                         loser = seats[history[-2][0]]
 
+                # remove loser's die, bump them if they're out of dice,
+                # and start over again
+                #
                 # show everyone the result
                 #
                 logging.debug('showing everyone the result')
                 history_str = ','.join(map(lambda x : '%s:%d' % (seats[x[0]],x[1]),history))
                 hands_str = ','.join(map(lambda x : '%s:%s' % (x,''.join(map(lambda y : str(y),hands[x]))),filter(lambda x : 0 != cups[x],seats)))
+                logging.info('player %s loses one die' % loser)
+                cups[loser] -= 1
+                if 0 == cups[loser] :
+                    logging.info('player %s has no dice left' % loser)
                 for i in seats :
                     try :
                         players[i](i,hands_str,history_str,rules)
@@ -242,15 +249,7 @@ def play_game(players,rules,catch_exceptions) :
                         if not catch_exceptions :
                             raise
                         logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],i))
-  
-                # remove loser's die, bump them if they're out of dice,
-                # and start over again
-                #
-                logging.info('player %s loses one die' % loser)
-                cups[loser] -= 1
-                if 0 == cups[loser] :
-                    logging.info('player %s has no dice left' % loser)
-               
+              
             # advance next move
             #
             while 1 :
