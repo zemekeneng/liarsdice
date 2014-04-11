@@ -80,11 +80,25 @@ def count_dice(hands_str) :
         t += len(i[1])
     return t
 
-def play_game(players,catch_exceptions) :
+def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_exceptions) :
+    play = 0
+    try :
+        play = int(f_get_play(who,hands_str,history_str))
+    except KeyboardInterrupt :
+        raise
+    except :
+        if not catch_exceptions :
+            raise
+        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[whose_move]))
+    logging.info('GAMELOG\t%s\t%d\t%s\t%s\t%s\t%d' % (game_id,hand_num,who,hands_str,history_str,play))
+    return play
+
+def play_game(game_id,players,catch_exceptions) :
     
     # first, set up the players left in the game
     #
     seats = players.keys()
+    seats.sort()
     random.shuffle(seats)
     whose_move = 0
     cups = {}
@@ -98,7 +112,9 @@ def play_game(players,catch_exceptions) :
 
     # keep playing hands until only one player left
     #
+    hand_num = 0
     while 1 :
+        hand_num += 1
 
         # only one player left?
         #
@@ -152,15 +168,7 @@ def play_game(players,catch_exceptions) :
 
             # get the play
             #
-            play = 0
-            try :
-                play = int(players[seats[whose_move]](seats[whose_move],hands_str,history_str))
-            except KeyboardInterrupt :
-                raise
-            except :
-                if not catch_exceptions :
-                    raise
-                logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[whose_move]))
+            play = get_play(game_id,hand_num,seats[whose_move],players[seats[whose_move]],hands_str,history_str,catch_exceptions)
             logging.info('player %s calls "%s"' % (seats[whose_move],verbose_play(play)))
 
             # check for legal moves
@@ -237,14 +245,7 @@ def play_game(players,catch_exceptions) :
                 if 0 == cups[loser] :
                     logging.info('player %s has no dice left' % loser)
                 for i in seats :
-                    try :
-                        players[i](i,hands_str,history_str)
-                    except KeyboardInterrupt :
-                        raise
-                    except :
-                        if not catch_exceptions :
-                            raise
-                        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],i))
+                    get_play(game_id,hand_num,i,players[seats[whose_move]],hands_str,history_str,catch_exceptions)
               
             # advance next move
             #

@@ -45,6 +45,7 @@ def make_player(s,catch_exceptions) :
 
 def play_games(n,seed,player_names,catch_exceptions) :
     random.seed(seed)
+    logging.info('SEED\t%s' % seed)
     players = {}
     scores = {}
     names = {}
@@ -59,7 +60,7 @@ def play_games(n,seed,player_names,catch_exceptions) :
     for r in range(n) :
         game_num += 1
         logging.debug('playing game %d ...' % (game_num,))
-        winner = liarsdice.play_game(players,catch_exceptions)
+        winner = liarsdice.play_game(game_num,players,catch_exceptions)
         scores[winner] += 1
         logging.debug('RESULT\tgame:%d\twinner:%s' % (game_num,winner))
         k = scores.keys()
