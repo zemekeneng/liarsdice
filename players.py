@@ -17,7 +17,7 @@ def p_human(me,hands_str,history) :
             logging.info('Hand over. Press return to continue ...')
             raw_input()
             logging.info('*' * 50)
-            return
+            return 0
     logging.info('Enter move (e.g., "0" to call, "23" for two threes, "106" for ten sixes) :')
     s = raw_input()
     x = 0

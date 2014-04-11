@@ -18,9 +18,9 @@ usage:
     
         $ python main.py play 10 my_robot.get_play his_robot.get_play robots.dummy
 
-    To run a tournament with the above with seed "frog":
+    To run a tournament with the above (eat exceptions) :
         
-        $ python main.py tournament frog 10 my_robot.get_play his_robot.get_play robots.dummy
+        $ python main.py tournament 10 my_robot.get_play his_robot.get_play robots.dummy
 
 '''
 

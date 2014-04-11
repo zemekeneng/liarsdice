@@ -90,7 +90,7 @@ def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_excepti
         if not catch_exceptions :
             raise
         logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[whose_move]))
-    logging.info('GAMELOG\t%s\t%d\t%s\t%s\t%s\t%d' % (game_id,hand_num,who,hands_str,history_str,play))
+    logging.debug('GAMELOG\t%s\t%d\t%s\t%s\t%s\t%d' % (game_id,hand_num,who,hands_str,history_str,play))
     return play
 
 def play_game(game_id,players,catch_exceptions) :
@@ -245,7 +245,7 @@ def play_game(game_id,players,catch_exceptions) :
                 if 0 == cups[loser] :
                     logging.info('player %s has no dice left' % loser)
                 for i in seats :
-                    get_play(game_id,hand_num,i,players[seats[whose_move]],hands_str,history_str,catch_exceptions)
+                    get_play(game_id,hand_num,i,players[i],hands_str,history_str,catch_exceptions)
               
             # advance next move
             #
