@@ -30,7 +30,12 @@ You can write a robot by implementing the function:
         but your own will be masked until the hand is over
         e.g.:
             
-            A:23135,B:..,C:....
+            A:23135,B:xx,C:xxxx
+
+        Here, you rolled two one one, one two, two threes,
+        and a five. There are two other players still in the
+        hand, B and C, and they have two and four dice left,
+        respectfully.
 
         history is the history of plays. e.g.:
 
@@ -44,15 +49,16 @@ You can write a robot by implementing the function:
         encoding the call, like, 23 for two threes,
         105 for 10 fives, or 0 for "liar".
 
+Your get\_play() function will be called when it is your turn,
+and at the end of the hand (in which case the most recent play
+will be a call) so you can observe the showdown.
+
 For a quick start to play against the computer:
 
     % git clone git://github.com/colinmsaunders/liarsdice.git
     % cd liarsdice
     % python main.py play human computer
 
-See [robot.py][2] for dox on how to write a robot.
-
 - colinmsaunders@gmail.com
 
 [1]: http://en.wikipedia.org/wiki/Liar's_dice
-[2]: https://github.com/colinmsaunders/liarsdice/blob/master/robot.py
