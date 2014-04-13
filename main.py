@@ -5,21 +5,13 @@
 HELP = '''\
 usage:
 
-    To play against the computer:
+    To play a game against the computer:
 
-        $ python main.py human
+        $ python main.py play human computer
 
-    To play against your robot in my_robot.py named get_play():
-
-        $ python main.py human my_robot.get_play
-
-    To play 10 games of liar's dice between get_play() in my_robot.py, get_play in 
-    his_robot.py, and dummy() in robots.py.
+    To play 10 games between get_play() in my_robot.py, get_play in 
+    his_robot.py, and dummy() in robots.py:
     
-        $ python main.py play 10 my_robot.get_play his_robot.get_play robots.dummy
-
-    To run a tournament with the above (eat exceptions) :
-        
         $ python main.py tournament 10 my_robot.get_play his_robot.get_play robots.dummy
 
 '''
@@ -35,7 +27,7 @@ def make_player(s,catch_exceptions) :
         filename,attr = s.split('.')
     try :
         m = __import__(filename)
-    except e :
+    except :
         if not catch_exceptions :
             raise
         logging.warn('couldn\'t import "%s"' % filename)
@@ -86,24 +78,19 @@ def main(argv) :
         print HELP
         sys.exit()
 
-    elif 'human' == c :
-        logging.basicConfig(level=logging.INFO,format='%(message)s',stream=sys.stdout)
-        opponent = 'players.p_simpleton'
-        if 3 == len(argv) :
-            opponent = sys.argv[2]
-        play_games(1,time.time(),('players.p_human',opponent),False)
-
     elif 'play' == c :
+        logging.basicConfig(level=logging.INFO,format='%(message)s',stream=sys.stdout)
+        n = 1
+        player_names = sys.argv[2:]
+        seed = time.time()
+        play_games(n,seed,player_names,False)
+  
+    elif 'tournament' == c :
         logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
-        play_games(n,''.join(player_names),player_names,False)
-  
-    elif 'tournament' == c :
-        logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)-7s %(message)s',stream=sys.stdout)
-        n = int(sys.argv[2])
-        player_names = sys.argv[3:]
-        play_games(n,''.join(player_names),player_names,True)
+        seed = ''.join(sys.argv)
+        play_games(n,seed,player_names,True)
     
     else :
         logging.error('i don\'t know how to "%s". look at the source' % c)

@@ -6,28 +6,6 @@ def p_caller(me,hands,history) :
     ''' always call '''
     return 0
 
-def p_human(me,hands_str,history) : 
-    ''' play against the computer '''
-    logging.info('You are player "%s".' % me)
-    logging.info('History: %s' % history)
-    logging.info('Hands: %s' % hands_str)
-    if 0 != len(history) :
-        last_play = history.split(',')[-1]
-        if 0 == int(last_play.split(':')[1]) :
-            logging.info('Hand over. Press return to continue ...')
-            raw_input()
-            logging.info('*' * 50)
-            return
-    logging.info('Enter move (e.g., "0" to call, "23" for two threes, "106" for ten sixes) :')
-    s = raw_input()
-    x = 0
-    try :
-        x = int(s)
-    except :
-        pass
-    logging.info('*' * 50)
-    return x
-
 def p_random_raiser(me,hands,history) :
     ''' raise to some random, possible, hand. call if impossible '''
     if 0 == len(history) :

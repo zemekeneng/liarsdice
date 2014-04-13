@@ -22,7 +22,7 @@ In this variation there are no wild dice, and no re-casting of dice.
 
 You can write a robot by implementing the function:
 
-    def get_move(me,hands,history) 
+    def get_play(me,hands,history) 
 
         me is the id of your player. eg, "A"
 
@@ -48,7 +48,7 @@ For a quick start to play against the computer:
 
     % git clone git://github.com/colinmsaunders/liarsdice.git
     % cd liarsdice
-    % python main.py human
+    % python main.py play human computer
 
 See [robot.py][2] for dox on how to write a robot.
 
