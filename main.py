@@ -30,7 +30,7 @@ import liarsdice
 
 def make_player(s,catch_exceptions) :
     filename = s
-    attr = 'get_move'
+    attr = 'get_play'
     if -1 != s.find('.') :
         filename,attr = s.split('.')
     try :

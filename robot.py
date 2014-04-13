@@ -1,39 +1,33 @@
-# robot.py -- template for creating a player to play liar's dice
+# robot.py -- sample liar's dice robot
 
-# How to Write a Robot
-# ====================
-#
-# Your robot's get_play() function will be called for each 
-# play, and once at the end of each hand (even if already 
-# out of the game).
-#
-# The get_play() prototype looks like:
-#
-#   def get_play(me,hands,history)
-#
-#       me is the id of your player. eg, "A"
-#
-#       hands is a serialization of each players hands, all 
-#       but your own will be masked until the hand is over
-#       e.g.:
-#            
-#           A:23135,B:..,C:....
-#
-#        history is the history of plays. e.g.:
-#
-#            A:23,B:33,C:0
-#
-#        This means, player "A" called "two threes",
-#        player "B" called "three threes", player C 
-#        called "liar".
-#
-#        Your function should return an integer 
-#        encoding the call, like, 23 for two threes,
-#        105 for 10 fives, or 0 for "liar".
-#
-# see players.py for some sample players, or, copy this file and implement the 
-# following function
+import random,logging
 
-def get_move(me,hands,history,rules) :
-    return 0
+RULES_FACES = 6 
+
+def get_play(me,hands,history) :
+    ''' raise to some random, possible, hand. call if impossible '''
+    if 0 == len(history) :
+        prev = 0,0
+    else :
+        x = int(history.split(',')[-1].split(':')[1])
+        prev = x / 10,x % 10
+    num_dice = sum(map(lambda x : len(x.split(':')[1]),hands.split(',')))
+
+    # impossible?
+    #
+    if prev[0] > num_dice :
+        return 0
+
+    # top call?
+    #
+    if prev[0] == num_dice and prev[1] == 6 :
+        return 0
+
+    # loop till we find a bigger play
+    #
+    while 1 :
+        qty = random.randint(prev[0],num_dice)
+        face = random.randint(1,RULES_FACES)
+        if (qty > prev[0]) or (qty == prev[0] and face > prev[1]) :
+            return (qty * 10) + face
 
