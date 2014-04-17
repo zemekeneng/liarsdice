@@ -37,7 +37,7 @@ def make_player(s,catch_exceptions) :
 
 def play_games(n,seed,player_names,catch_exceptions) :
     random.seed(seed)
-    logging.info('SEED\t%s' % seed)
+    logging.debug('SEED\t%s' % seed)
     players = {}
     scores = {}
     names = {}
@@ -82,7 +82,7 @@ def main(argv) :
         logging.basicConfig(level=logging.INFO,format='%(message)s',stream=sys.stdout)
         n = 1
         player_names = sys.argv[2:]
-        seed = time.time()
+        seed = int(time.time() * 1000)
         play_games(n,seed,player_names,False)
   
     elif 'tournament' == c :

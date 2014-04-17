@@ -2,11 +2,9 @@
 
 import logging
 
-def get_play(me,hands_str,history) : 
+def get_play(me,hands,history) : 
     ''' play against the computer '''
-    logging.info('You are player "%s".' % me)
-    logging.info('History: %s' % history)
-    logging.info('Hands: %s' % hands_str)
+    logging.info('You are player "%s" | Hands: %s | History: %s' % (me,hands,history))
     if 0 != len(history) :
         last_play = history.split(',')[-1]
         if 0 == int(last_play.split(':')[1]) :

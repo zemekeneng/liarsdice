@@ -6,11 +6,17 @@ RULES_FACES = 6
 
 def get_play(me,hands,history) :
     ''' raise to some random, possible, hand. call if impossible '''
+    
+    # figure out the previous call
+    #
     if 0 == len(history) :
         prev = 0,0
     else :
         x = int(history.split(',')[-1].split(':')[1])
         prev = x / 10,x % 10
+    
+    # count the total number of dice
+    #
     num_dice = sum(map(lambda x : len(x.split(':')[1]),hands.split(',')))
 
     # impossible?
