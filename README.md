@@ -20,7 +20,7 @@ remains.
 
 In this variation there are no wild dice, and no re-casting of dice.
 
-You can write a robot by implementing the function:
+You can write a robot by implementing the function in robot.py:
 
     def get_play(me,hands,history) 
 
@@ -59,6 +59,13 @@ For a quick start to play against the computer:
     % cd liarsdice
     % python main.py play human computer
 
-- colinmsaunders@gmail.com
+Next, edit robot.py, implement get\_play(), then play your
+robot against the computer 100 times:
+
+    % python main.py tournament 100 robot computer
+
+Have fun!
+
+colinmsaunders@gmail.com
 
 [1]: http://en.wikipedia.org/wiki/Liar's_dice
