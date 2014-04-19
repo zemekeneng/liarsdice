@@ -32,7 +32,7 @@ You can write a robot by implementing the function in robot.py:
             
             A:23135,B:xx,C:xxxx
 
-        Here, you rolled two one one, one two, two threes,
+        Here, you rolled one one, one two, two threes,
         and a five. There are two other players still in the
         hand, B and C, and they have two and four dice left,
         respectfully.
