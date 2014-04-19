@@ -54,32 +54,6 @@ def verbose_play(play) :
     else :
         return '%s %s' % (STR_QUANTITY.get(play // 10,'%d' % (play // 10)),STR_FACE_PLURAL.get(play % 10,'???'))
 
-def parse_history(history_str) :
-    a = []
-    h = history_str.split(';')
-    for i in h :
-        a.append(i.split(':'))
-    return a
-
-def parse_hands(hands_str) :
-    a = []
-    h = hands_str.split(';')
-    for i in h :
-        a.append(i.split(':'))
-    return a
-
-def my_hand(me,hands_str) :
-    for i in parse_hands(hands_str) :
-        if i[0] == me :
-            return i[1]
-    return None
-
-def count_dice(hands_str) :
-    t = 0
-    for i in parse_hands(hands_str) :
-        t += len(i[1])
-    return t
-
 def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_exceptions) :
     play = 0
     try :
@@ -89,7 +63,7 @@ def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_excepti
     except :
         if not catch_exceptions :
             raise
-        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[who]))
+        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],who))
     logging.debug('GAMELOG\t%s\t%d\t%s\t%s\t%s\t%d' % (game_id,hand_num,who,hands_str,history_str,play))
     return play
 
