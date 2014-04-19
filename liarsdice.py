@@ -89,7 +89,7 @@ def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_excepti
     except :
         if not catch_exceptions :
             raise
-        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[whose_move]))
+        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],seats[who]))
     logging.debug('GAMELOG\t%s\t%d\t%s\t%s\t%s\t%d' % (game_id,hand_num,who,hands_str,history_str,play))
     return play
 
