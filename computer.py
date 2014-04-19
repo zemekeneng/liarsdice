@@ -35,10 +35,9 @@ def get_play(me,hands,history) :
         #
         face = int(my_hand[random.randint(0,len(my_hand) - 1)])
 
-        # pick a random quantity from 1 to the
-        # total number of dice, but skew it low
+        # pick a random quantity, skew it low
         #
-        quantity = 1 + int(abs(random.normalvariate(0.0,num_dice / 4.0)))
+        quantity = 1 + int(abs(random.normalvariate(0.0,num_dice / 6.0)))
 
         logging.debug('trying %d %d\'s ...' % (quantity,face))
 
