@@ -10,7 +10,7 @@ def get_play(me,hands,history) :
         prev_quantity,prev_face = 0,0
     else :
         x = int(history.split(',')[-1].split(':')[1])
-        prev_quantity,prev_face = x / 10,x % 10
+        prev_quantity,prev_face = x // 10,x % 10
     
     # count the total number of dice
     #
