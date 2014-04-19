@@ -3,18 +3,18 @@ Liar's Dice
 
 This is a game to pit [Liar's Dice][1] robots against each other.
 
-Liar's Dice is played amongst two or more players, each of which 
-begin with a dice cup and 4 six-sided dice. All players roll their
+Liar's Dice is played amongst two or more players, each of whom
+begin with a dice cup and four six-sided dice. All players roll their
 dice, but don't reveal them. In turn, each player makes a declaration,
 such as "two threes" or "three sixes", or, a player may call "Liar".
 Each successive call must be higher than the previous (either a higher
 quantity, or a higher face with the same quantity). These declarations
 are for the *entire* set of dice combined. When a player calls "Liar",
-all dice are revealed. If the assertion is met (that is, the number 
-of faces is greater than or equal to the claim), then the player 
-who called liar must remove a die from their cup. If not, the last
-player to make the declaration must remove a die from their cup. If
-a player has no more dice in their cup they are out of the game. 
+all dice are revealed. If the declartion is met (that is, the number 
+of faces is greater than or equal to the quantity claimed), then the 
+player who called liar must remove a die from their cup. If not, the 
+last player to make the declaration must remove a die from their cup. 
+If a player has no more dice in their cup they are out of the game. 
 Play continues in this fashion until only one player, the winner,
 remains.
 

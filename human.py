@@ -1,4 +1,4 @@
-# huamn.py -- human liar's dice player
+# human.py -- human liar's dice player
 
 import logging
 
