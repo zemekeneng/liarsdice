@@ -39,8 +39,6 @@ def get_play(me,hands,history) :
         #
         quantity = 1 + int(abs(random.normalvariate(0.0,num_dice / 6.0)))
 
-        logging.debug('trying %d %d\'s ...' % (quantity,face))
-
         # is it a bigger call than the previous?
         #
         if (quantity > prev_quantity) or ((quantity == prev_quantity) and (face > prev_face)) :
