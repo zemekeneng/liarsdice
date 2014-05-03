@@ -4,7 +4,7 @@ Liar's Dice
 This is a game to pit [Liar's Dice][1] robots against each other.
 
 Liar's Dice is played amongst two or more players, each of whom
-begin with a dice cup and four six-sided dice. All players roll their
+begin with a dice cup and five six-sided dice. All players roll their
 dice, but don't reveal them. In turn, each player makes a declaration,
 such as "two threes" or "three sixes", or, a player may call "Liar".
 Each successive call must be higher than the previous (either a higher

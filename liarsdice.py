@@ -1,8 +1,8 @@
 # liarsdice.py -- the liar's dice logic functions, you can import this in your robots
 
-# the variation of liars dice (4 6-sided dies, ones not wild)
+# the variation of liars dice (5 6-sided dies, ones not wild)
 #
-RULES_DICE          = 4
+RULES_DICE          = 5
 RULES_FACES         = 6
 RULES_ONES_WILD     = 0
 
