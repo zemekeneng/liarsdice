@@ -11,6 +11,11 @@ def get_play(me,hands,history) :
     else :
         x = int(history.split(',')[-1].split(':')[1])
         prev_quantity,prev_face = x // 10,x % 10
+
+    # showdown? if so, just ignore
+    #
+    if 0 == prev_quantity :
+        return 0
     
     # count the total number of dice
     #
