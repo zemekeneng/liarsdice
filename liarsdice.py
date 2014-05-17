@@ -6,7 +6,7 @@ RULES_DICE          = 5
 RULES_FACES         = 6
 RULES_ONES_WILD     = 0
 
-STR_FACE_SINGLE = {
+STR_NUM_SINGULAR = {
     1   : 'one',
     2   : 'two',
     3   : 'three',
@@ -18,7 +18,7 @@ STR_FACE_SINGLE = {
     9   : 'nine',
 }
 
-STR_FACE_PLURAL = {
+STR_NUM_PLURAL = {
     1   : 'ones',
     2   : 'twos',
     3   : 'threes',
@@ -30,18 +30,6 @@ STR_FACE_PLURAL = {
     9   : 'nines',
 }
 
-STR_QUANTITY = {
-    1   : 'one',
-    2   : 'two',
-    3   : 'three',
-    4   : 'four',
-    5   : 'five',
-    6   : 'six',
-    7   : 'seven',
-    8   : 'eight',
-    9   : 'nine',
-}
-
 import random,logging,sys
 
 def verbose_play(play) :
@@ -50,11 +38,11 @@ def verbose_play(play) :
     elif 0 == play :
         return 'LIAR!'
     elif 1 == (play // 10) :
-        return 'one %s' % STR_FACE_SINGLE.get(play % 10,'???')
+        return 'one %s' % STR_NUM_SINGULAR.get(play % 10,'???')
     else :
-        return '%s %s' % (STR_QUANTITY.get(play // 10,'%d' % (play // 10)),STR_FACE_PLURAL.get(play % 10,'???'))
+        return '%s %s' % (STR_NUM_SINGULAR.get(play // 10,'%d' % (play // 10)),STR_NUM_PLURAL.get(play % 10,'???'))
 
-def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_exceptions) :
+def get_play(game_id,hand_num,who,f_get_play,player_name,hands_str,history_str,catch_exceptions) :
     play = 0
     try :
         play = int(f_get_play(who,hands_str,history_str))
@@ -63,11 +51,11 @@ def get_play(game_id,hand_num,who,f_get_play,hands_str,history_str,catch_excepti
     except :
         if not catch_exceptions :
             raise
-        logging.warn('caught exception "%s" calling %s\'s get_play() function' % (sys.exc_info()[1],who))
-    logging.debug('GAMELOG\t%s\t%d\t%s\t%s\t%s\t%d' % (game_id,hand_num,who,hands_str,history_str,play))
+        logging.warn('caught exception "%s" calling %s (%s) \'s get_play() function' % (sys.exc_info()[1],who,player_name))
+    logging.debug('GAMELOG\t%s\t%d\t%s-%s\t%s\t%s\t%d' % (game_id,hand_num,who,player_name,hands_str,history_str,play))
     return play
 
-def play_game(game_id,players,catch_exceptions) :
+def play_game(game_id,players,player_names,catch_exceptions) :
     
     # first, set up the players left in the game
     #
@@ -82,7 +70,7 @@ def play_game(game_id,players,catch_exceptions) :
         cups[i] = dice
 
     logging.info('=' * 50)
-    logging.info('new game between %s' % ', '.join(seats))
+    logging.info('new game between %s' % ', '.join(map(lambda x : '%s-%s' % (x,player_names[x]),seats)))
 
     # keep playing hands until only one player left
     #
@@ -142,7 +130,7 @@ def play_game(game_id,players,catch_exceptions) :
 
             # get the play
             #
-            play = get_play(game_id,hand_num,seats[whose_move],players[seats[whose_move]],hands_str,history_str,catch_exceptions)
+            play = get_play(game_id,hand_num,seats[whose_move],players[seats[whose_move]],player_names[seats[whose_move]],hands_str,history_str,catch_exceptions)
             logging.info('player %s calls "%s"' % (seats[whose_move],verbose_play(play)))
 
             # check for legal moves
@@ -219,7 +207,7 @@ def play_game(game_id,players,catch_exceptions) :
                 if 0 == cups[loser] :
                     logging.info('player %s has no dice left' % loser)
                 for i in seats :
-                    get_play(game_id,hand_num,i,players[i],hands_str,history_str,catch_exceptions)
+                    get_play(game_id,hand_num,i,players[i],player_names[i],hands_str,history_str,catch_exceptions)
               
             # advance next move
             #

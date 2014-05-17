@@ -20,6 +20,11 @@ import sys,logging,random,time
 
 import liarsdice
 
+# ignore SIG_PIPE
+# 
+from signal import signal, SIGPIPE, SIG_DFL 
+signal(SIGPIPE,SIG_DFL) 
+
 def make_player(s,catch_exceptions) :
     filename = s
     attr = 'get_play'
@@ -52,7 +57,7 @@ def play_games(n,seed,player_names,catch_exceptions) :
     for r in range(n) :
         game_num += 1
         logging.debug('playing game %d ...' % (game_num,))
-        winner = liarsdice.play_game(game_num,players,catch_exceptions)
+        winner = liarsdice.play_game(game_num,players,names,catch_exceptions)
         scores[winner] += 1
         logging.debug('RESULT\tgame:%d\twinner:%s' % (game_num,winner))
         k = scores.keys()
@@ -90,7 +95,7 @@ def main(argv) :
         n = int(sys.argv[2])
         player_names = sys.argv[3:]
         seed = ''.join(sys.argv)
-        play_games(n,seed,player_names,True)
+        play_games(n,seed,player_names,False)
     
     else :
         logging.error('i don\'t know how to "%s". look at the source' % c)
