@@ -52,7 +52,7 @@ def get_play(game_id,hand_num,who,f_get_play,player_name,hands_str,history_str,c
         if not catch_exceptions :
             raise
         logging.warn('caught exception "%s" calling %s (%s) \'s get_play() function' % (sys.exc_info()[1],who,player_name))
-    logging.debug('GAMELOG\t%s\t%d\t%s-%s\t%s\t%s\t%d' % (game_id,hand_num,who,player_name,hands_str,history_str,play))
+    logging.debug('LOG_PLAY\t%s\t%d\t%s-%s\t%s\t%s\t%d' % (game_id,hand_num,who,player_name,hands_str,history_str,play))
     return play
 
 def play_game(game_id,players,player_names,catch_exceptions) :
@@ -102,6 +102,8 @@ def play_game(game_id,players,player_names,catch_exceptions) :
             logging.debug('rolling %d dice for %s ...' % (cups[i],i))
             for j in range(cups[i]) :
                 hands[i].append(random.randint(1,faces))
+            hands[i].sort(reverse=True)
+
         logging.debug('hands: %s' % str(filter(lambda x : 0 != cups[x[0]],hands.items())))
         
         # keep playing hands until someone calls liar
@@ -157,6 +159,7 @@ def play_game(game_id,players,player_names,catch_exceptions) :
             # treat it as a call and check the bluff
             #
             loser = None
+            result = None
             if 0 == play :
                 
                 # if it's the first play, they lose
@@ -164,6 +167,7 @@ def play_game(game_id,players,player_names,catch_exceptions) :
                 if 1 == len(history) :
                     logging.debug('called liar before any plays')
                     loser = seats[whose_move]
+                    result = 1
 
                 else :
                     
@@ -190,9 +194,11 @@ def play_game(game_id,players,player_names,catch_exceptions) :
                     if common_dice.get(last_face,0) >= last_quantity :
                         logging.debug('%s\'s last play was %d %d\'s, CORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,seats[whose_move]))
                         loser = seats[whose_move]
+                        result = 2
                     else :
                         logging.debug('%s\'s last play was %d %d\'s, INCORRECT, %s loses' % (seats[history[-2][0]],last_quantity,last_face,seats[history[-2][0]]))
                         loser = seats[history[-2][0]]
+                        result = 3
 
                 # remove loser's die, bump them if they're out of dice,
                 # and start over again
@@ -202,6 +208,7 @@ def play_game(game_id,players,player_names,catch_exceptions) :
                 logging.debug('showing everyone the result')
                 history_str = ','.join(map(lambda x : '%s:%d' % (seats[x[0]],x[1]),history))
                 hands_str = ','.join(map(lambda x : '%s:%s' % (x,''.join(map(lambda y : str(y),hands[x]))),filter(lambda x : 0 != cups[x],seats)))
+                logging.debug('LOG_HAND\t%s\t%d\t%s\t%s\tLOSER:%s-%s\t%d' % (game_id,hand_num,hands_str,history_str,loser,player_names[loser],result))
                 logging.info('player %s loses one die' % loser)
                 cups[loser] -= 1
                 if 0 == cups[loser] :
@@ -223,6 +230,7 @@ def play_game(game_id,players,player_names,catch_exceptions) :
             if None != loser :
                 break
 
+    logging.debug('LOG_GAME\t%s\t%s' % (game_id,winner))
     logging.info('player %s wins' % winner)
     return winner
 
