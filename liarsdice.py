@@ -52,7 +52,7 @@ def get_play(game_id,hand_num,who,f_get_play,player_name,hands_str,history_str,c
         if not catch_exceptions :
             raise
         logging.warn('caught exception "%s" calling %s (%s) \'s get_play() function' % (sys.exc_info()[1],who,player_name))
-    logging.debug('LOG_PLAY\t%s\t%d\t%s-%s\t%s\t%s\t%d' % (game_id,hand_num,who,player_name,hands_str,history_str,play))
+    logging.debug('LOG_PLAY\tG%sH%d\t%s-%s\t%s\t%s\t%d' % (game_id,hand_num,who,player_name,hands_str,history_str,play))
     return play
 
 def play_game(game_id,players,player_names,catch_exceptions) :
@@ -93,7 +93,7 @@ def play_game(game_id,players,player_names,catch_exceptions) :
         # everyone rolls their dice
         #
         logging.info('-' * 50)
-        logging.info('new hand between %s with %s dice, respectfully' % (', '.join(filter(lambda x : 0 != cups[x],seats)),', '.join(map(lambda x : '%d' % cups[x],filter(lambda x : 0 != cups[x],seats)))))
+        logging.info('new hand between %s with %s dice, respectfully' % (', '.join(map(lambda x : '%s-%s' % (x,player_names[x]),filter(lambda x : 0 != cups[x],seats))),', '.join(map(lambda x : '%d' % cups[x],filter(lambda x : 0 != cups[x],seats)))))
         hands = {}
         for i in seats :
             if 0 == cups[i] :
@@ -187,7 +187,7 @@ def play_game(game_id,players,player_names,catch_exceptions) :
                     logging.debug('hands: %s' % str(hands))
                     logging.debug('common dice: %s' % str(common_dice))
 
-                    logging.info('player %s calls liar on player %s\'s call of %s' % (seats[whose_move],seats[history[-2][0]],verbose_play(last_play)))
+                    logging.info('player %s-%s calls liar on player %s-%s\'s call of %s' % (seats[whose_move],player_names[seats[whose_move]],seats[history[-2][0]],player_names[seats[history[-2][0]]],verbose_play(last_play)))
                     logging.info('hands: %s' % ', '.join(map(lambda x : '%s:%s' % (x,''.join(map(lambda y : str(y),hands[x]))),filter(lambda x : 0 != cups[x],seats))))
                     logging.info('common dice: %s' % ', '.join(map(lambda x : verbose_play((x[1] * 10) + x[0]),common_dice.items())))
 
@@ -208,11 +208,11 @@ def play_game(game_id,players,player_names,catch_exceptions) :
                 logging.debug('showing everyone the result')
                 history_str = ','.join(map(lambda x : '%s:%d' % (seats[x[0]],x[1]),history))
                 hands_str = ','.join(map(lambda x : '%s:%s' % (x,''.join(map(lambda y : str(y),hands[x]))),filter(lambda x : 0 != cups[x],seats)))
-                logging.debug('LOG_HAND\t%s\t%d\t%s\t%s\tLOSER:%s-%s\t%d' % (game_id,hand_num,hands_str,history_str,loser,player_names[loser],result))
-                logging.info('player %s loses one die' % loser)
+                logging.debug('LOG_HAND\tG%sH%d\t%s\t%s\tLOSER:%s-%s\t%d' % (game_id,hand_num,hands_str,history_str,loser,player_names[loser],result))
+                logging.info('player %s-%s loses one die' % (loser,player_names[loser]))
                 cups[loser] -= 1
                 if 0 == cups[loser] :
-                    logging.info('player %s has no dice left' % loser)
+                    logging.info('player %s-%s has no dice left' % (loser,player_names[loser]))
                 for i in seats :
                     get_play(game_id,hand_num,i,players[i],player_names[i],hands_str,history_str,catch_exceptions)
               
@@ -231,6 +231,6 @@ def play_game(game_id,players,player_names,catch_exceptions) :
                 break
 
     logging.debug('LOG_GAME\t%s\t%s' % (game_id,winner))
-    logging.info('player %s wins' % winner)
+    logging.info('player %s-%s wins' % (winner,player_names[winner]))
     return winner
 
