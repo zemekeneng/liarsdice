@@ -22,8 +22,8 @@ import liarsdice
 
 # ignore SIG_PIPE
 # 
-from signal import signal, SIGPIPE, SIG_DFL 
-signal(SIGPIPE,SIG_DFL) 
+# from signal import signal, SIGPIPE, SIG_DFL 
+# signal(SIGPIPE,SIG_DFL) 
 
 def make_player(s,catch_exceptions) :
     filename = s
